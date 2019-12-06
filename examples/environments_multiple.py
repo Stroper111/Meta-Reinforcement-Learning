@@ -28,7 +28,7 @@ def multiple_diff_env():
     env.reset()
     env.render()
 
-    img, reward, done, info = env.step(np.array([0] * 4))
+    img, reward, done, info = env.step(np.array([i for i in range(6)]))
 
     print(img['rgb'].shape)
     print(reward)
