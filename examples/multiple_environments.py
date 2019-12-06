@@ -12,7 +12,7 @@ def multiple_same_env():
     N_ENV = 12
 
     venv = procgen.ProcgenEnv(num_envs=N_ENV, env_name="coinrun")
-    img = venv.reset()
+    venv.reset()
     action_space = venv.action_space.n
 
     while True:
