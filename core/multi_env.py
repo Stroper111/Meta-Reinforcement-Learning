@@ -13,17 +13,36 @@ class MultiEnv:
             in procgen.env.ENV_NAMES and the value is the number of
             instances of this game.
     """
-    def __init__(self, setup: dict):
-        self.setup = setup
-        self.instances = sum(setup.values())
-        self.venv = self._create_games(setup)
 
-    def _create_games(self, setup):
+    def __init__(self, setup: dict):
+        self.setup = None
+        self.instances = None
+        self.venv = None
+
+        self.new_setup(setup)
+
+    def __getattr__(self, item):
+        """ Back up for invoking an attribute not overruled here, such as action_space.  """
+        data = dict()
+        for game, venv in zip(self.setup, self.venv):
+            if hasattr(venv, item):
+                data[game] = getattr(venv, item)
+            else:
+                raise AttributeError(f"{venv.__class__.__name__} doesn't have attribute '{item}'")
+        return data
+
+    @staticmethod
+    def create_games(setup):
         """ Helper for creating all environments with the correct number of instances.  """
         venv = []
         for game, instances in setup.items():
             venv.append(procgen.ProcgenEnv(num_envs=instances, env_name=game))
         return venv
+
+    def new_setup(self, setup):
+        self.setup = setup
+        self.instances = sum(setup.values())
+        self.venv = self.create_games(setup)
 
     def reset(self):
         """ Reset all the environments and return the (stacked) starting images.  """
@@ -36,6 +55,7 @@ class MultiEnv:
         action_processed = 0
         actions_per_env = list(self.setup.values())
 
+        # Perform the first steps in the environment, so the remainders can be stacked onto it
         images, rewards, dones, infos = self.venv[0].step(actions[0:actions_per_env[0]])
         images = images['rgb']
 
@@ -52,3 +72,8 @@ class MultiEnv:
     def render(self):
         """ Render all environments in their own window.  """
         [venv.render() for venv in self.venv]
+
+    def close(self):
+        """ Close all the environments.  """
+        [venv.close() for venv in self.venv]
+        self.venv = None

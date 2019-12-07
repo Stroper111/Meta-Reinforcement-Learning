@@ -28,14 +28,20 @@ def multiple_diff_env():
     env.reset()
     env.render()
 
-    img, reward, done, info = env.step(np.array([i for i in range(6)]))
+    steps = 0
+    img, reward, done, info = [None] * 4
+    while steps <= 100:
+        actions = np.random.randint(0, env.action_space['coinrun'].n, sum(setup.values()))
+        img, reward, done, info = env.step(actions)
+        env.render()
+        steps += 1
 
     print(img['rgb'].shape)
     print(reward)
     print(done)
     print(info)
 
-    env.render()
+
     time.sleep(5)
 
 
