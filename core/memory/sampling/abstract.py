@@ -3,7 +3,7 @@ from abc import ABC
 
 from core.memory import ReplayMemory
 
-class Sampling(ABC):
+class AbstractSampling(ABC):
     """
         Abstract class to unify all different sampling methods.
         This class is a generator to work with keras generator.
