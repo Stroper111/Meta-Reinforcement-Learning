@@ -53,6 +53,9 @@ class ReplayMemory:
     def __len__(self):
         return self.in_use if not self.filled else self.size
 
+    def get_batch(self, idx):
+        return self.states[idx], self.q_values[idx]
+
     def reset(self):
         self.in_use = 0
         self.filled = False

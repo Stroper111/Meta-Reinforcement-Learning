@@ -1,4 +1,6 @@
 
+import numpy as np
+
 from abc import ABC
 
 from core.memory import ReplayMemory
@@ -10,12 +12,16 @@ class AbstractSampling(ABC):
 
         replay_memory: ReplayMemory
             This is used to extract samples from.
+        batch-size: int
+            The number of samples per batch.
     """
-    def __init__(self, replay_memory: ReplayMemory):
+    def __init__(self, replay_memory: ReplayMemory, batch_size: int=64):
         pass
 
-    def __next__(self):
+    def __len__(self):
+        """  This will determine how many times the keras generator will loop over the dataset.  """
         pass
 
-    def batch(self):
+    def __getitem__(self, item) -> (np.array, np.array):
+        """ Return generator X and Y.  """
         pass

@@ -41,5 +41,6 @@ class TestReplayMemory(unittest.TestCase):
             end_episode = 1 if iteration % 25 == 0 else 0
             self.memory.add(state, q_values, action, reward, end_life, end_episode)
 
+
 if __name__ == '__main__':
     unittest.main()
