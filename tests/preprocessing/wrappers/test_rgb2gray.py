@@ -5,7 +5,7 @@ import time
 
 from PIL import Image
 
-from core.preprocessing.wrappers import RGB2Gray
+from core.preprocessing.wrappers.rgb2gray import RGB2Gray
 
 
 class TestRGB2Gray(unittest.TestCase):

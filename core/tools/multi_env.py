@@ -45,7 +45,8 @@ class MultiEnv:
         self.venv = self.create_games(setup)
 
     def reset(self):
-        """ Reset all the environments and return the (stacked) starting images.  """
+        """ in the new gym environment reseting is the same as create a new gym instance.  """
+        self.new_setup(self.setup)
         images = [venv.reset()['rgb'] for venv in self.venv]
         images = np.vstack(images)
         return dict(rgb=images)
