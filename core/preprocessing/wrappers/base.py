@@ -29,12 +29,10 @@ class BaseWrapper:
         return cls.__name__
 
     def step(self, action):
-        img, *args = self.env.step(action)
-        img = self.process(img['rgb'])
-        return (dict(rgb=img), *args)
+        return self.env.step(action)
 
     def reset(self):
-        return dict(rgb=self.process(self.env.reset()['rgb']))
+        return self.env.reset()
 
     def render(self):
         return self.env.render()

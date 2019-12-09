@@ -18,10 +18,10 @@ class TestRGB2Gray(unittest.TestCase):
 
         current_directory = os.path.dirname(os.path.abspath(__file__))
 
-        with open(os.path.join(current_directory, "test_images.pkl"), "rb") as file:
+        with open(os.path.join(current_directory, "_original_images.pkl"), "rb") as file:
             cls.images = pickle.load(file)['rgb']
 
-        with open(os.path.join(current_directory, "test_images_black.pkl"), "rb") as file:
+        with open(os.path.join(current_directory, "_original_images_black.pkl"), "rb") as file:
             cls.image_processed = pickle.load(file)
 
     def test_process(self):
