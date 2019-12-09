@@ -2,7 +2,6 @@ import unittest
 import pickle
 import numpy as np
 import time
-import glob
 
 from PIL import Image
 
@@ -32,7 +31,8 @@ class TestRGB2Gray(unittest.TestCase):
         image = np.reshape(self.images, newshape=(64 * 3, 64 * 4, 3))
         self._show_image(image, wait_time=3)
 
-    def _show_image(self, image, wait_time):
+    @staticmethod
+    def _show_image(image, wait_time):
         """ Helper to depict an image for a wait time number of seconds.  """
         img = Image.fromarray(image)
         img.show()
