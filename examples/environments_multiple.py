@@ -1,4 +1,3 @@
-
 import procgen
 import time
 import numpy as np
@@ -62,7 +61,6 @@ def multiple_diff_env():
 
 
 if __name__ == '__main__':
-
     # multiple_same_env()
     # multiple_diff_env()
 
