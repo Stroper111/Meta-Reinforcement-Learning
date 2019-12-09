@@ -28,7 +28,7 @@ class ReplayMemory:
         self.alpha =  alpha
         self.gamma = gamma
 
-        self.in_use = 0
+        self.pointer = 0
         self.filled = False
         self.error_threshold = 0.1
 
@@ -51,25 +51,29 @@ class ReplayMemory:
         return state, q_values, action, reward, end_life, end_episode
 
     def __len__(self):
-        return self.in_use if not self.filled else self.size
+        return self.pointer if not self.filled else self.size
 
     def get_batch(self, idx):
         return self.states[idx], self.q_values[idx]
 
     def reset(self):
-        self.in_use = 0
+        self.pointer = 0
         self.filled = False
 
-    def in_use_ratio(self):
-        return self.in_use / self.size
+    def refill_memory(self):
+        self.pointer = 0
+        self.filled = True
+
+    def pointer_ratio(self):
+        return self.pointer / self.size
 
     def is_full(self):
-        return self.in_use >= self.size
+        return self.pointer >= self.size
 
     def add(self, state, q_values, action, reward, end_life, end_episode):
         if not self.is_full():
-            k = self.in_use
-            self.in_use += 1
+            k = self.pointer
+            self.pointer += 1
 
             self.states[k] = state
             self.q_values[k] = q_values
@@ -80,7 +84,7 @@ class ReplayMemory:
 
     def update(self):
         self.q_values_old[:] = self.q_values[:]
-        for k in reversed(range(self.in_use - 1)):
+        for k in reversed(range(self.pointer - 1)):
             action = self.actions[k]
             reward = self.rewards[k]
             end_life = self.end_life[k]
@@ -112,11 +116,11 @@ class ReplayMemory:
         error = self.estimation_errors[:-1]
         error_count = np.count_nonzero(error > self.error_threshold)
         msg = "\tNumber of large errors > {threshold}: {error_count}/{total} ({percentage:.1%})"
-        print(msg.format(threshold=self.error_threshold, error_count=error_count, total=self.in_use,
-                         percentage=error_count / self.in_use))
+        print(msg.format(threshold=self.error_threshold, error_count=error_count, total=self.pointer,
+                         percentage=error_count / self.pointer))
 
-        end_life_percentage = np.count_nonzero(self.end_life) / self.in_use
-        end_episode_percentage = np.count_nonzero(self.end_episode) / self.in_use
-        non_zero_percentage = np.count_nonzero(self.rewards) / self.in_use
+        end_life_percentage = np.count_nonzero(self.end_life) / self.pointer
+        end_episode_percentage = np.count_nonzero(self.end_episode) / self.pointer
+        non_zero_percentage = np.count_nonzero(self.rewards) / self.pointer
         msg = "\tend_life: {life:.1%}, end_episode: {episode:.1%}, reward non-zero: {non_zero:.1%}"
         print(msg.format(life=end_life_percentage, episode=end_episode_percentage, non_zero=non_zero_percentage))
