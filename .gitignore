@@ -2,5 +2,5 @@
 .idea
 
 # Ignore temp model storage for testing.
-./tests/model/temp
+./tests/model/temp*
 
