@@ -15,6 +15,16 @@ class TestMultiEnv(unittest.TestCase):
     def tearDown(self) -> None:
         self.env.close()
 
+    def test_wrong_setups(self):
+        with self.assertRaises(AssertionError):
+            env = MultiEnv({"MsPacman-v0": 1})
+
+        with self.assertRaises(AssertionError):
+            env = MultiEnv(dict(coinrun=6.5))
+
+        with self.assertRaises(AssertionError):
+            env = MultiEnv(dict(coinrun="6"))
+
     def test_images_on_reset(self):
         images = self.env.reset()
         self.assertEqual((self.env_number, 64, 64, 3), images['rgb'].shape)
