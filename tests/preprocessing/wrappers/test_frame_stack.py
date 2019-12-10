@@ -30,4 +30,4 @@ class TestFrameStack(unittest.TestCase):
 
         stacked_images = np.array(stacked_images)
         self.assertEqual((self.env.instances, 4, 64, 64, 3), stacked_images.shape, "Different shape than expected")
-        self.assertEqual(True, np.array_equal(stacked_images[0][0], stacked_images[0][0]), "Images not copied")
+        self.assertEqual(True, np.array_equal(stacked_images[0][0], stacked_images[0][3]), "Images not copied")

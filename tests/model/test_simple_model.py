@@ -4,6 +4,7 @@ import unittest
 import sys
 import traceback
 
+
 class Suppressor(object):
     """
         Supresses stdout calls
@@ -12,14 +13,15 @@ class Suppressor(object):
         self.stdout = sys.stdout
         sys.stdout = self
 
-    def __exit__(self, type, value, trace):
+    def __exit__(self, type_, value, trace):
         sys.stdout = self.stdout
-        if type is not None:
-            traceback.format_exception(trace)
+        if type_ is not None:
+            traceback.format_tb(trace)
 
     def write(self, x):
         """ This is the redirect.  """
         pass
+
 
 with Suppressor():
     from core.models import SimpleModel
@@ -32,9 +34,9 @@ class TestSimpleModel(unittest.TestCase):
         cls.input_shape = (64, 64, 3)
         cls.action_space = 5
 
-
         with Suppressor():
             cls.model = SimpleModel(cls.input_shape, cls.action_space)
+
         cls.save_msg = cls.model.save_msg
         cls.back_up_count = cls.model.back_up_count
 

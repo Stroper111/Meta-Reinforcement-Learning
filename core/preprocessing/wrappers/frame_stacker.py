@@ -20,9 +20,10 @@ class FrameStack(BaseWrapper):
 
     def step(self, actions):
         images, reward, done, info = self.env.step(actions)
+        images = np.expand_dims(images['rgb'], axis=1)
         for id, image in enumerate(images):
             self.frames[id].append(image)
-        return self._get_images(), reward, done, info
+        return dict(rgb=self._get_images()), reward, done, info
 
     def process(self, img):
         pass
