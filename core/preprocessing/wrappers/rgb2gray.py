@@ -10,6 +10,14 @@ class RGB2Gray(BaseWrapper):
         super(RGB2Gray, self).__init__(setup)
         self.gray = np.array([0.2126, 0.7152, 0.00722])
 
-    def process(self, img):
+    def step(self, action):
+        img, *args = self.env.step(action)
+        img = self.process(img['rgb'])
+        return (dict(rgb=img), *args)
+
+    def reset(self):
+        return dict(rgb=self.process(self.env.reset()['rgb']))
+
+    def process(self, img: np.array):
         gray = np.einsum("ijkl, l -> ijk", img, self.gray)
         return gray

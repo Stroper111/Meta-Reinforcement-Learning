@@ -1,8 +1,30 @@
 import glob
 import os
 import unittest
+import sys
+import traceback
 
-from core.models import SimpleModel
+
+class Suppressor(object):
+    """
+        Supresses stdout calls
+    """
+    def __enter__(self):
+        self.stdout = sys.stdout
+        sys.stdout = self
+
+    def __exit__(self, type_, value, trace):
+        sys.stdout = self.stdout
+        if type_ is not None:
+            traceback.format_tb(trace)
+
+    def write(self, x):
+        """ This is the redirect.  """
+        pass
+
+
+with Suppressor():
+    from core.models import SimpleModel
 
 
 class TestSimpleModel(unittest.TestCase):
@@ -12,7 +34,9 @@ class TestSimpleModel(unittest.TestCase):
         cls.input_shape = (64, 64, 3)
         cls.action_space = 5
 
-        cls.model = SimpleModel(cls.input_shape, cls.action_space)
+        with Suppressor():
+            cls.model = SimpleModel(cls.input_shape, cls.action_space)
+
         cls.save_msg = cls.model.save_msg
         cls.back_up_count = cls.model.back_up_count
 

@@ -2,10 +2,11 @@ import unittest
 import pickle
 import numpy as np
 import time
+import os
 
 from PIL import Image
 
-from core.preprocessing.wrappers import RGB2Gray
+from core.preprocessing.wrappers.rgb2gray import RGB2Gray
 
 
 class TestRGB2Gray(unittest.TestCase):
@@ -15,10 +16,12 @@ class TestRGB2Gray(unittest.TestCase):
         cls.setup = dict(coinrun=12)
         cls.wrapper = RGB2Gray(cls.setup)
 
-        with open("test_images.pkl", "rb") as file:
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+
+        with open(os.path.join(current_directory, "_original_images.pkl"), "rb") as file:
             cls.images = pickle.load(file)['rgb']
 
-        with open("test_images_black.pkl", "rb") as file:
+        with open(os.path.join(current_directory, "_original_images_black.pkl"), "rb") as file:
             cls.image_processed = pickle.load(file)
 
     def test_process(self):
