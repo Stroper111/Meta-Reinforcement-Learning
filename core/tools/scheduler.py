@@ -1,7 +1,8 @@
 import time
 import numpy as np
+import os
 
-from core.preprocessing import StatisticsUnique
+from core.preprocessing.wrappers import StatisticsUnique
 
 
 class Scheduler:
@@ -35,20 +36,24 @@ class Scheduler:
         self.start_time = time.time()
         self.total_time = time.time()
 
-    def __next__(self):
+    def __getitem__(self, item):
+        pass
 
+    def __next__(self):
         episodes, steps = self.env.scheduler
 
         for key, value in [('time',  (time.time() - self.start_time)),
                            ('episode', episodes),
                            ('steps', steps)]:
 
-
             if value >= self.updates[key]:
                 self.env._write_summary()
                 self.updates[key] = min(self.update_counts[key] + self.updates[key], self.limits[key])
 
                 if value >= self.limits[key]:
+                    if self.added_temp:
+                        os.remove("temp")
+
                     return StopIteration
         return True
 

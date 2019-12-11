@@ -1,16 +1,37 @@
 import unittest
+import numpy as np
+import os
+import glob
 
 from core import MultiEnv
 from core.tools import Scheduler
 
 
 class TestMultiEnv(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.current_directory = os.path.dirname(os.path.abspath(__file__))
+        cls.full_path_directory = os.path.join(cls.current_directory, "temp")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        for file in glob.glob(os.path.join("temp", "*.txt")):
+            os.remove(file)
+
+        if os.path.exists(cls.full_path_directory):
+            os.removedirs(cls.full_path_directory)
+
     def setUp(self):
         self.setup = dict(coinrun=2, bigfish=2, chaser=2)
         self.instances = sum(self.setup.values())
 
         self.env = MultiEnv(self.setup)
-        self.env_action_space = self.env.action_space['coinrun'].n
 
-    def tearDown(self) -> None:
-        self.env.close()
+    def test_setup(self):
+        kwargs = dict()
+        counter = 0
+        for each in Scheduler(self.env, **kwargs):
+            counter += 1
+            if counter > 10:
+                break
