@@ -6,18 +6,31 @@ from collections import deque
 from core.preprocessing.wrappers import BaseWrapper
 
 
-class Statistics(BaseWrapper):
+class StatisticsUnique(BaseWrapper):
     """ Converter for MultiEnv generated images.  """
 
-    def __init__(self, env, save_dir):
-        super(Statistics, self).__init__(env)
+    def __init__(self, env, save_dir, history_size=30):
+        super().__init__(env)
         self.save_dir = save_dir
         self.setup = env.setup
         self.instances = env.instances
-        self.continuous_history_size = 30
 
-        self._continuous = Continuous(self.instances, self.continuous_history_size)
-        self._episodic = Episode(self.instances, self._continuous, save_dir)
+        self.continuous_history_size = history_size
+        self.save_paths = self._save_paths(save_dir, self.setup)
+
+        self._continuous = Continuous(self.instances, history_size)
+        self._episodic = Episode(self.instances, self._continuous, self.save_paths)
+
+    def _save_paths(self, save_dir, setup):
+        files = []
+        for game, instances in setup.items():
+            for each in range(instances):
+                file = os.path.join(save_dir, f"logs_{game}_{each}")
+                files.append(file)
+
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        return files
 
     def step(self, action):
         images, rewards, dones, infos = self.env.step(action)
@@ -43,6 +56,7 @@ class Continuous:
 
     def summary(self, stats):
         data = {stat: [getattr(np, stat)(game) for game in self._data] for stat in stats}
+        data['total_steps'] = self.total_steps
         return data
 
     def update(self, rewards, dones):
@@ -55,20 +69,12 @@ class Continuous:
 
 
 class Episode:
-    def __init__(self, instances, continuous, save_dir):
+    def __init__(self, instances, continuous,  save_paths):
         self.episode = np.zeros(instances, dtype=np.int)
         self.steps = np.zeros(instances, dtype=np.int)
         self.rewards = np.zeros(instances, dtype=np.float)
-        self.continous = continuous
-
-        self.save_dir = save_dir
-        self.save_path = self._save_path(save_dir)
-
-    def _save_path(self, save_dir):
-        file = os.path.join(save_dir, "episode_logs_game_")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        return file
+        self.continuous = continuous
+        self.save_paths = save_paths
 
     def summary(self):
         return dict(episode=self.episode, steps=self.steps, rewards=self.rewards)
@@ -79,14 +85,14 @@ class Episode:
 
         # Write completed episodes to a file
         for idx in np.where(dones)[0]:
-            mean = self.continous.stat_per_game(idx, stat='mean')
+            mean = self.continuous.stat_per_game(idx, stat='mean')
             self.write(idx, mean)
             self.steps[idx] = 0
             self.rewards[idx] = 0
             self.episode[idx] += 1
 
     def write(self, idx, mean):
-        with open(f"{self.save_path}{'%02d' % idx}.txt", mode='a', buffering=1) as file:
+        with open(f"{self.save_paths[idx]}{'%02d' % idx}.txt", mode='a', buffering=1) as file:
             msg = "{episode:9,d}\t{steps:12,d}\t{reward:6,.1f}\t{mean:9,.2f}\n"
-            msg = msg.format(episode=self.episode[idx], steps=self.steps[idx], reward=self.rewards[idx],  mean=mean)
+            msg = msg.format(episode=self.episode[idx], steps=self.steps[idx], reward=self.rewards[idx], mean=mean)
             file.write(msg)
