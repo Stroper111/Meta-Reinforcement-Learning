@@ -3,7 +3,7 @@ import numpy as np
 import os
 import pickle
 
-from core.preprocessing import PreProcessingBase
+from core.preprocessing import BasePreProcessing
 from core.tools import MultiEnv
 
 
@@ -23,7 +23,7 @@ class MyTestCase(unittest.TestCase):
             os.removedirs(cls.full_path_directory)
 
     def test_default(self):
-        env = PreProcessingBase(self.env, save_dir=self.full_path_directory).env
+        env = BasePreProcessing(self.env, save_dir=self.full_path_directory).env
         images = env.reset()
         self.assertEqual(self.instance, len(images['rgb']))
 
@@ -35,7 +35,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual((self.instance, 4, 64, 64), images_stack.shape)
 
     def test_rgb2gray(self):
-        env = PreProcessingBase(env=self.env,
+        env = BasePreProcessing(env=self.env,
                                 rgb2gray=True,
                                 frame_stack=None,
                                 statistics=False).env
@@ -47,7 +47,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual((self.instance, 64, 64), images['rgb'].shape)
 
     def test_stacking_4(self):
-        env = PreProcessingBase(env=self.env,
+        env = BasePreProcessing(env=self.env,
                                 rgb2gray=False,
                                 frame_stack=4,
                                 statistics=False).env
@@ -57,7 +57,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(True, np.array_equal(images[0][0], images[0][3]), "Images not copied")
 
     def test_stacking_none(self):
-        env = PreProcessingBase(env=self.env,
+        env = BasePreProcessing(env=self.env,
                                 rgb2gray=False,
                                 frame_stack=False,
                                 statistics=False).env
