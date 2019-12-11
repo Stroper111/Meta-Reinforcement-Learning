@@ -13,7 +13,7 @@ class PreProcessingBase:
         if rgb2gray:
             self.env = RGB2Gray(self.env)
 
-        if frame_stack > 0:
+        if frame_stack and frame_stack > 0:
             assert isinstance(frame_stack, int), "The number has to be an integer"
             self.env = FrameStack(self.env, stack=frame_stack)
 

@@ -1,7 +1,7 @@
 
 import numpy as np
 
-from core import MultiEnv
+from core.tools import MultiEnv
 
 
 class BaseWrapper:
