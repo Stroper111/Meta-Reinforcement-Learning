@@ -17,6 +17,23 @@ class MyTestCase(unittest.TestCase):
         cls.current_directory = os.path.dirname(os.path.abspath(__file__))
         cls.full_path_directory = os.path.join(cls.current_directory, "temp")
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        if os.path.exists(cls.full_path_directory):
+            os.removedirs(cls.full_path_directory)
+
+    def test_default(self):
+        env = PreProcessingBase(self.env, save_dir=self.full_path_directory).env
+        images = env.reset()
+        self.assertEqual(self.instance, len(images['rgb']))
+
+        images_stack = np.array(images['rgb'])
+        self.assertEqual((self.instance, 4, 64, 64), images_stack.shape)
+
+        images, *_ = env.step(np.zeros(self.instance))
+        images_stack = np.array(images['rgb'])
+        self.assertEqual((self.instance, 4, 64, 64), images_stack.shape)
+
     def test_rgb2gray(self):
         env = PreProcessingBase(env=self.env,
                                 rgb2gray=True,
@@ -46,6 +63,7 @@ class MyTestCase(unittest.TestCase):
                                 statistics=False).env
         images = env.reset()
         self.assertEqual((self.env.instances, 64, 64, 3), images['rgb'].shape, "Different shape than expected")
+
 
 
 if __name__ == '__main__':
