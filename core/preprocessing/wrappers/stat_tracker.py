@@ -7,60 +7,31 @@ from core.preprocessing.wrappers import BaseWrapper
 
 class Statistics(BaseWrapper):
     """ Converter for MultiEnv generated images.  """
-    aggregate_ = namedtuple('aggregate', ('n', 'min', 'q1', 'median', 'q3', 'max', 'mean'))
-    episodic_ = namedtuple('episodic', ('episode', 'steps', 'rewards'))
     def __init__(self, env, save_dir):
         super(Statistics, self).__init__(env)
         self.save_dir = save_dir
         self.setup = env.setup
         self.instances = env.instances
-        self.continuous_backlog = 30
+        self.continuous_history_size = 30
 
         self._episodic = Episode(self.instances)
-        self._continuous = self._create_data_continuous()
+        self._continuous = Continuous(self.instances, self.continuous_history_size)
 
     def step(self, action):
         images, rewards, dones, infos = self.env.step(action)
         self._step_update(rewards, dones)
         return images, rewards, dones, infos
 
-    def print_statistics(self, stats: list = None):
+    def summary(self, stats: list = None):
         """ Print the information of the last statistics, stats have to be valid numpy functions.  """
-
-        # Get the stats for every instance
-        per_instance = {stat: [getattr(np, stat)(game) for game in self._continuous] for stat in stats}
-        return per_instance, self._episodic
-
-    def _create_data_continuous(self):
-        """ Create all continuous data, the dict key has to be valid numpy values.  """
-        data = [deque([0], maxlen=self.continuous_backlog) for _ in range(self.instances)]
-        return data
-
-    def _data_game(self):
-        """ Combines the data of all instances of a single game.  """
-        pass
+        episodic = self._episodic.summary()
+        continuous = self._continuous.summary(stats)
+        return episodic, continuous
 
     def _step_update(self, rewards, dones):
         """ Update all statics on a step.  """
-        self._step_update_continuous(rewards, dones)
-        self._step_update_episodic(rewards, dones)
-        pass
-
-    def _step_update_continuous(self, rewards, dones):
-        """ Update all statics on a step.  """
-        for game, data in zip(self._continuous, rewards):
-            game.append(data)
-
-    def _step_update_episodic(self, rewards, dones):
-        """ Update all statics on a step.  """
-        # Update reward
-        self._episodic.rewards += rewards
-        self._episodic.episode[dones] += 1
-        self._episodic.steps[np.bitwise_not(dones)] += 1
-
-        self._episodic.steps[dones] = 0
-        self._episodic.rewards[dones] = 0
-        # TODO Store done episodes
+        self._episodic.update(rewards, dones)
+        self._continuous.update(rewards, dones)
 
 
 class Episode:
@@ -68,6 +39,31 @@ class Episode:
         self.episode = np.zeros(instances)
         self.steps = np.zeros(instances)
         self.rewards = np.zeros(instances)
+
+    def update(self, rewards, dones):
+        self.rewards += rewards
+        self.episode[dones] += 1
+        self.steps[np.bitwise_not(dones)] += 1
+
+        self.steps[dones] = 0
+        self.rewards[dones] = 0
+
+    def summary(self):
+        return dict(episode=self.episode, steps=self.steps, rewards=self.rewards)
+
+
+class Continuous:
+    def __init__(self, instances, history_size):
+        self._data = [deque([0], maxlen=history_size) for _ in range(instances)]
+
+    def update(self, rewards, dones):
+        [game.append(data) for game, data in zip(self._data, rewards)]
+
+    def summary(self, stats):
+        data = dict()
+        for stat in stats:
+            data[stat] = [getattr(np, stat)(game) for game in self._data]
+        return data
 
 
 class Log:
