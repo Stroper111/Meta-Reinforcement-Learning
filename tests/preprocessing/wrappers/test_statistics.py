@@ -22,15 +22,6 @@ class TestStatistics(unittest.TestCase):
         cls.step_counter = 1
         cls.wrapper = Statistics(cls.env, cls.full_path_directory)
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        for file in glob.glob(os.path.join(cls.full_path_directory, "*.txt")):
-            os.remove(file)
-
-        if os.path.exists(cls.full_path_directory):
-            os.removedirs(cls.full_path_directory)
-
-
     def _fake_reward(self):
         """ The reward is equal to the id instance of the game.  """
         return np.arange(self.env.instances)
@@ -68,3 +59,17 @@ class TestStatistics(unittest.TestCase):
         self.assertEqual(True, np.array_equal([0, 11, 2, 93], stats_episodic['rewards']), "Wrong reward numbers")
         self.assertEqual(True, np.array_equal([1, 11, 1, 31], stats_episodic['steps']), "Wrong steps number")
         self.assertEqual(self.wrapper.continuous_history_size + 1, stats_continuous['total_steps'], "Wrong step count")
+
+        # Test for saving, if no clean up was required, saving is not working properly.
+        self._clean_up()
+
+    def _clean_up(self):
+        remove = False
+        for file in glob.glob(os.path.join(self.full_path_directory, "*.txt")):
+            os.remove(file)
+            remove = True
+
+        if os.path.exists(self.full_path_directory):
+            os.removedirs(self.full_path_directory)
+
+        self.assertEqual(True, remove, "No logs removed, test saving...")

@@ -9,15 +9,28 @@ from core.preprocessing.wrappers import BaseWrapper
 class Statistics(BaseWrapper):
     """ Converter for MultiEnv generated images.  """
 
-    def __init__(self, env, save_dir):
+    def __init__(self, env, save_dir, history_size=30):
         super(Statistics, self).__init__(env)
         self.save_dir = save_dir
         self.setup = env.setup
         self.instances = env.instances
-        self.continuous_history_size = 30
 
-        self._continuous = Continuous(self.instances, self.continuous_history_size)
-        self._episodic = Episode(self.instances, self._continuous, save_dir, self.setup)
+        self.continuous_history_size = history_size
+        self.save_paths = self._save_paths(save_dir, self.setup)
+
+        self._continuous = Continuous(self.instances, history_size)
+        self._episodic = Episode(self.instances, self._continuous, self.save_paths)
+
+    def _save_paths(self, save_dir, setup):
+        files = []
+        for game, instances in setup.items():
+            for each in range(instances):
+                file = os.path.join(save_dir, f"logs_{game}_{each}")
+                files.append(file)
+
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        return files
 
     def step(self, action):
         images, rewards, dones, infos = self.env.step(action)
@@ -56,24 +69,12 @@ class Continuous:
 
 
 class Episode:
-    def __init__(self, instances, continuous, save_dir, setup):
+    def __init__(self, instances, continuous,  save_paths):
         self.episode = np.zeros(instances, dtype=np.int)
         self.steps = np.zeros(instances, dtype=np.int)
         self.rewards = np.zeros(instances, dtype=np.float)
         self.continuous = continuous
-
-        self.save_dir = save_dir
-        self.save_paths = self._save_paths(save_dir, setup)
-
-    def _save_paths(self, save_dir, setup):
-        files = []
-        for game, instances in setup.items():
-            for each in range(instances):
-                file = os.path.join(save_dir, f"logs_{game}_{each}")
-                files.append(file)
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        return files
+        self.save_paths = save_paths
 
     def summary(self):
         return dict(episode=self.episode, steps=self.steps, rewards=self.rewards)
