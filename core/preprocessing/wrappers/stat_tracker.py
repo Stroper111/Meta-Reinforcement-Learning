@@ -6,11 +6,11 @@ from collections import deque
 from core.preprocessing.wrappers import BaseWrapper
 
 
-class Statistics(BaseWrapper):
+class StatisticsUnique(BaseWrapper):
     """ Converter for MultiEnv generated images.  """
 
     def __init__(self, env, save_dir, history_size=30):
-        super(Statistics, self).__init__(env)
+        super().__init__(env)
         self.save_dir = save_dir
         self.setup = env.setup
         self.instances = env.instances
