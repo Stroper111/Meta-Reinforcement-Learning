@@ -43,6 +43,7 @@ class Continuous:
 
     def summary(self, stats):
         data = {stat: [getattr(np, stat)(game) for game in self._data] for stat in stats}
+        data['total_steps'] = self.total_steps
         return data
 
     def update(self, rewards, dones):
