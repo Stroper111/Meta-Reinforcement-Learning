@@ -1,5 +1,5 @@
 
 from .abstract import AbstractModel
-from .simple import Model as SimpleModel
+from .simple import BaseModel
 
-__all__ = ['AbstractModel', 'SimpleModel']
+__all__ = ['AbstractModel', 'BaseModel']
