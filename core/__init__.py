@@ -8,5 +8,6 @@ from core.agents import BaseAgent
 from core.tools import MultiEnv
 from core.models import BaseModel
 
-__all__ = ['MultiEnv', 'BaseAgent', 'ReplayMemory', 'BaseSampling', 'wrappers',
-           'BasePreProcessing', 'PreProcessingHvasslab', 'PreProcessingDeempind']
+__all__ = ['MultiEnv', 'ReplayMemory', 'wrappers',
+           'BaseAgent', 'BaseModel', 'BaseSampling', 'BasePreProcessing',
+           'PreProcessingHvasslab', 'PreProcessingDeempind']

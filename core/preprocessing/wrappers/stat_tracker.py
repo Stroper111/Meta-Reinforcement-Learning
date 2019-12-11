@@ -43,6 +43,9 @@ class StatisticsUnique(BaseWrapper):
         continuous = self._continuous.summary(stats)
         return episodic, continuous
 
+    def scheduler(self):
+        return dict(episode=sum(self._episodic.episode), steps=self._continuous.total_steps)
+
     def _step_update(self, rewards, dones):
         """ Update all statics on a step.  """
         self._episodic.update(rewards, dones)

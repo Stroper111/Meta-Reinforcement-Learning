@@ -24,7 +24,7 @@ class Suppressor(object):
 
 
 with Suppressor():
-    from core.models import SimpleModel
+    from core.models import BaseModel
 
 
 class TestSimpleModel(unittest.TestCase):
@@ -35,7 +35,7 @@ class TestSimpleModel(unittest.TestCase):
         cls.action_space = 5
 
         with Suppressor():
-            cls.model = SimpleModel(cls.input_shape, cls.action_space)
+            cls.model = BaseModel(cls.input_shape, cls.action_space)
 
         cls.save_msg = cls.model.save_msg
         cls.back_up_count = cls.model.back_up_count

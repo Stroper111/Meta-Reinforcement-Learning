@@ -2,7 +2,11 @@
 import os
 import time
 
-from core import MultiEnv, BasePreProcessing, ReplayMemory, BaseSampling, BaseModel
+from core.tools import MultiEnv
+from core.preprocessing import BasePreProcessing
+from core.models import BaseModel
+from core.memory.replay_memory import ReplayMemory
+from core.memory.sampling import BaseSampling
 
 
 class BaseAgent:
@@ -21,7 +25,6 @@ class BaseAgent:
         self.model = BaseModel(self.input_shape, self.output_shape)
 
     def run(self):
-
         while True:
 
 
