@@ -5,7 +5,7 @@ import glob
 
 from unittest.mock import Mock
 
-from core.preprocessing.wrappers import Statistics
+from core.preprocessing.wrappers import StatisticsUnique
 
 
 class TestStatistics(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestStatistics(unittest.TestCase):
 
         # Create fake interaction
         cls.step_counter = 1
-        cls.wrapper = Statistics(cls.env, cls.full_path_directory)
+        cls.wrapper = StatisticsUnique(cls.env, cls.full_path_directory)
 
     def _fake_reward(self):
         """ The reward is equal to the id instance of the game.  """
