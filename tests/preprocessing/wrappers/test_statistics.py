@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 import os
+import glob
 
 from unittest.mock import Mock
 
@@ -15,10 +16,20 @@ class TestStatistics(unittest.TestCase):
         cls.env.setup = dict(coinrun=2, bigfish=2)
         cls.env.instances = sum(cls.env.setup.values())
         cls.current_directory = os.path.dirname(os.path.abspath(__file__))
+        cls.full_path_directory = os.path.join(cls.current_directory, "temp")
 
         # Create fake interaction
         cls.step_counter = 1
-        cls.wrapper = Statistics(cls.env, None)
+        cls.wrapper = Statistics(cls.env, cls.full_path_directory)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        for file in glob.glob(os.path.join(cls.full_path_directory, "*.txt")):
+            os.remove(file)
+
+        if os.path.exists(cls.full_path_directory):
+            os.removedirs(cls.full_path_directory)
+
 
     def _fake_reward(self):
         """ The reward is equal to the id instance of the game.  """
