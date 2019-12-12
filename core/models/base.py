@@ -53,11 +53,12 @@ class BaseModel(AbstractModel):
         return self.model.predict(states)
 
     def train(self, sampling):
-        loss = []
+        loss_history = []
         for num, (input, output) in enumerate(sampling):
-            loss.append(self.model.fit(input, output, verbose=0).history['loss'])
-            print("\rIteration %4d, batch_loss: %5.4f" % (num, loss[-1]), flush=True, end='')
-        return loss
+            loss = self.model.fit(input, output, verbose=0).history['loss'][0]
+            loss_history.append(loss)
+            print("\r\tIteration %4d, batch_loss: %5.4f" % (num, loss), end='')
+        return loss_history
 
     def save_model(self, save_dir):
         self._check_create_directory(save_dir)

@@ -96,7 +96,6 @@ class ReplayMemory:
 
             self.estimation_errors[k] = abs(action_value - self.q_values[k, action])
             self.q_values[k, action] = action_value
-        self.print_statistics()
 
     def print_statistics(self):
         print("\nReplay-memory statistics")
