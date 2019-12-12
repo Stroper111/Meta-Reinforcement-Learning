@@ -29,7 +29,7 @@ class BaseAgent:
         self.samplers = self._create_samplers()
         self.loss = self._create_loss()
 
-        self.kwargs = dict(time_update=5)
+        self.kwargs = dict(step_update=5_000)
         self.scheduler = Scheduler(self.env, **self.kwargs)
 
     def _create_memories(self):
