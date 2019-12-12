@@ -14,7 +14,7 @@ from core.memory.sampling import BaseSampling
 class BaseAgent:
     def __init__(self):
 
-        self.setup = dict(coinrun=1)
+        self.setup = dict(coinrun=6)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
