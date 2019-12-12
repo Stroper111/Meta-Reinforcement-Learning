@@ -38,6 +38,11 @@ class AbstractModel(ABC):
         pass
 
     @abstractmethod
+    def actions(self, states):
+        """ Return the action to execute, this can be combined with epsilon.  """
+        pass
+
+    @abstractmethod
     def train(self, sampling: BaseSampling):
         """ Trains a model on the sampling.  """
         pass

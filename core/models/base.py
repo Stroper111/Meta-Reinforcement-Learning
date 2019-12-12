@@ -60,7 +60,7 @@ class BaseModel(AbstractModel):
         actions_exploit = np.argmax(q_values, axis=1)
 
         if explore:
-            actions_exploit[explore] = actions_explore
+            actions_exploit[explore] = actions_explore[explore]
         return q_values, actions_exploit
 
     def train(self, sampling):
@@ -68,7 +68,7 @@ class BaseModel(AbstractModel):
         for num, (x, y) in enumerate(sampling):
             loss = self.model.fit(x, y, verbose=0).history['loss'][0]
             loss_history.append(loss)
-            print("\r\tIteration {:4,d}, batch_loss: {:7,.4f}".format(num, loss), end='')
+            print("\r\tIteration {:4,d}/{:4,d}, batch_loss: {:7,.4f}".format(num, len(sampling), loss), end='')
         return loss_history
 
     def save_model(self, save_dir, episode, frames):

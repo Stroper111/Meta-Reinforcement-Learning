@@ -58,11 +58,13 @@ class StatisticsUnique(BaseWrapper):
 class Continuous:
     def __init__(self, instances, history_size):
         self._data = [deque([0], maxlen=history_size) for _ in range(instances)]
+        self.instances = instances
+        self.history_size = history_size
         self.total_steps = 0
 
     def summary(self, stats):
         data = {stat: [getattr(np, stat)(game) for game in self._data] for stat in stats}
-        data['total_steps'] = [self.total_steps]
+        data['total_steps'] = [self.total_steps * self.instances]
         return data
 
     def update(self, rewards, dones):

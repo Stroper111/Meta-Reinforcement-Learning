@@ -5,7 +5,7 @@ import numpy as np
 from collections import deque
 from copy import deepcopy
 
-from core.tools import MultiEnv, Scheduler
+from core.tools import MultiEnv, Scheduler, LinearControlSignal
 from core.preprocessing import BasePreProcessing
 from core.models import BaseModel
 from core.memory.replay_memory import ReplayMemory
@@ -14,7 +14,7 @@ from core.memory.sampling import BaseSampling
 
 class BaseAgent:
     def __init__(self):
-        self.setup = dict(bigfish=1)
+        self.setup = dict(bigfish=6)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
@@ -30,13 +30,15 @@ class BaseAgent:
         self.samplers = self._create_samplers()
         self.loss = self._create_loss()
 
-        self.kwargs = dict(step_update=5_000)
+        self.kwargs = dict(step_update=25_000)
         self.scheduler = Scheduler(self.env, **self.kwargs)
+
+        self.replay_fraction = LinearControlSignal(start_value=0.1, end_value=1.0, num_iterations=10_000)
 
     def _create_memories(self):
         memories = []
         for _ in range(self.instances):
-            memories.append(ReplayMemory(size=200_000, shape=self.input_shape, action_space=self.action_space))
+            memories.append(ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space))
         return memories
 
     def _create_samplers(self):
@@ -55,26 +57,31 @@ class BaseAgent:
         images = self.scheduler.reset_images
         actions = np.argmax(self.model.predict(self.reformat_states(images)), axis=1)
 
-        for env, update in self.scheduler:
+        for env, update, episode, steps in self.scheduler:
             images, rewards, dones, infos = env.step(actions)
             # Please always use deepcopy for this, since you use a lot of memory otherwise (you unpack all layzframes)
             q_values, actions_new = self.model.actions(self.reformat_states(deepcopy(images)))
 
             for k in range(self.instances):
+                if self.memories[k].is_full():
+                    self.memories[k].reset()
+
                 self.memories[k].add(state=images['rgb'][k], q_values=q_values[k], action=actions[k],
                                      reward=rewards[k], end_episode=dones[k])
+
+            for k in range(self.instances):
+                if self.memories[k].pointer_ratio() >= self.replay_fraction.get_value(steps):
+                    self.memories[k].update()
+                    self.loss[k].append(np.mean(self.model.train(sampling=self.samplers[k])))
+                    self.model.save_checkpoint(self.save_dir, episode, steps)
+
             if update:
-                for k in range(self.instances):
-                    if self.memories[k].pointer_ratio() >= 0.1:
-                        self.memories[k].update()
-                        self.loss[k].append(np.mean(self.model.train(sampling=self.samplers[k])))
-                        print('\r\tloss (average)'.ljust(18), ''.join(['{:15,.4f}'.format(np.mean(game)) for game in
-                                                               self.loss]))
-                        self.model.save_checkpoint(self.save_dir, *env.model())
+                print('\r\tloss (average)'.ljust(18), ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss]))
 
             actions = actions_new
 
-    def reformat_states(self, states):
+    @staticmethod
+    def reformat_states(states):
         """  Transforms the input of  stacked frame to the required format for the model.  """
         return np.array(states['rgb']).transpose([0, 2, 3, 1])
 
