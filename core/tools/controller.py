@@ -54,10 +54,17 @@ class Scheduler:
         return self.env, update, episode, steps
 
     def _write_summary(self, key, value):
-        print(f"\nSummary (condition: {key} = {int(value)})")
+        print(f"\nSummary (condition: {key} = {'{:2,d}'.format(int(value))}, elapsed time: {self._convert_time()})")
         print(f"\t{'Instance:'.ljust(15)}{''.join(['{:15,d}'.format(i) for i in range(self.env.instances)])}")
         for stat, result in self.env.summary(stats=['mean']).items():
             print(f"\t{stat.ljust(15)}{''.join(['{:15,.2f}'.format(each) for each in result])}")
 
     def _write(self, msg):
         print(f"\r{msg}", end="")
+
+    def _convert_time(self):
+        seconds = int(time.time() - self.start_time)
+        minutes = seconds // 60
+        hours = minutes // 60
+        seconds = seconds % 60
+        return '%2d hours %2d minutes %2d seconds' % (hours, minutes, seconds)

@@ -81,9 +81,14 @@ class BaseModel(AbstractModel):
         self._remove_old_files(pattern="*weights.h5", save_dir=save_dir, back_ups=self.back_up_count)
 
     def load_model(self, load_dir):
-        files = glob.glob(os.path.join(load_dir, "*weights.h5"))
-        newest_file = max(files, key=os.path.getctime)
-        self.model.load_weights(newest_file)
+        """ Automatically load the newest model it can find in a sub directory.  """
+        files = glob.glob(os.path.join(load_dir, "/*/*", "*weights.h5"))
+        if files:
+            newest_file = max(files, key=os.path.getctime)
+            self.model.load_weights(newest_file)
+            print("Checkpoint found, continuing...")
+        else:
+            print("No checkpoint found, reinitiliazing variables instead...")
 
     def load_checkpoint(self, load_dir):
         self.load_model(load_dir)

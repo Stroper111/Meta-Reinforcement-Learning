@@ -5,7 +5,7 @@ import numpy as np
 from collections import deque
 from copy import deepcopy
 
-from core.tools import MultiEnv, Scheduler, LinearControlSignal
+from core.tools import MultiEnv, Scheduler, StepWiseSignal
 from core.preprocessing import BasePreProcessing
 from core.models import BaseModel
 from core.memory.replay_memory import ReplayMemory
@@ -18,7 +18,8 @@ class BaseAgent:
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
-        self.save_dir = os.path.join("D:/", "checkpoint", self.current_time())
+        games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
+        self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
         self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=30)
 
         self.env = self.processor.env
@@ -26,6 +27,7 @@ class BaseAgent:
         self.action_space = self.processor.output_shape()
 
         self.model = BaseModel(self.input_shape, self.action_space)
+        self.model.load_checkpoint(self.save_dir)
         self.memories = self._create_memories()
         self.samplers = self._create_samplers()
         self.loss = self._create_loss()
@@ -33,7 +35,7 @@ class BaseAgent:
         self.kwargs = dict(step_update=25_000)
         self.scheduler = Scheduler(self.env, **self.kwargs)
 
-        self.replay_fraction = LinearControlSignal(start_value=0.1, end_value=1.0, num_iterations=10_000)
+        self.replay_factor = StepWiseSignal(start_value=.1, end_value=1., num_iterations=50_000, bins=9, repeat=True)
 
     def _create_memories(self):
         memories = []
@@ -70,7 +72,7 @@ class BaseAgent:
                                      reward=rewards[k], end_episode=dones[k])
 
             for k in range(self.instances):
-                if self.memories[k].pointer_ratio() >= self.replay_fraction.get_value(steps):
+                if self.memories[k].pointer_ratio() >= self.replay_factor.get_value(steps):
                     self.memories[k].update()
                     self.loss[k].append(np.mean(self.model.train(sampling=self.samplers[k])))
                     self.model.save_checkpoint(self.save_dir, episode, steps)
