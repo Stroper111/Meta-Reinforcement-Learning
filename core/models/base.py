@@ -7,8 +7,6 @@ from keras.layers import Conv2D, Flatten, Dense
 from keras.initializers import TruncatedNormal
 from keras.optimizers import RMSprop
 
-from collections import deque
-
 from core.models import AbstractModel
 
 
@@ -36,11 +34,15 @@ class BaseModel(AbstractModel):
                        filters=16, kernel_size=3, strides=2,
                        padding='same', kernel_initializer=init,
                        activation='relu'),
+                Conv2D(input_shape=input_shape, name='layer_conv2',
+                       filters=32, kernel_size=3, strides=2,
+                       padding='same', kernel_initializer=init,
+                       activation='relu'),
 
                 Flatten(),
-
-                Dense(name='layer_fc_out', units=action_space,
-                      activation='linear')
+                Dense(name='layer_fc2', units=512, activation='relu'),
+                Dense(name='layer_fc3', units=256, activation='relu'),
+                Dense(name='layer_fc_out', units=action_space, activation='linear')
             ]
         )
         model.compile(optimizer=RMSprop(lr=0.0025), loss='mse')
@@ -51,7 +53,9 @@ class BaseModel(AbstractModel):
         return self.model.predict(states)
 
     def train(self, sampling):
-        loss = self.model.fit(*sampling.random_batch(), verbose=0).history['loss']
+        loss = []
+        for num, (input, output) in enumerate(sampling):
+            loss.append(self.model.fit(input, output, verbose=0).history['loss'])
         return loss
 
     def save_model(self, save_dir):

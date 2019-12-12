@@ -25,7 +25,7 @@ class StatisticsUnique(BaseWrapper):
         files = []
         for game, instances in setup.items():
             for each in range(instances):
-                file = os.path.join(save_dir, f"logs_{game}_{each}")
+                file = os.path.join(save_dir, f"logs_{game}_{'{:02d}'.format(each)}")
                 files.append(file)
 
         if not os.path.exists(save_dir):
@@ -63,9 +63,13 @@ class Continuous:
         return data
 
     def update(self, rewards, dones):
-        [game.append(data) for game, data in zip(self._data, rewards)]
-        # This is the same for all games
+        """ Update on every step.  """
         self.total_steps += 1
+
+    def update_score(self, idx, reward):
+        """  Updated at the end of the game.  """
+        self._data[idx].append(reward)
+
 
     def stat_per_game(self, idx, stat):
         return getattr(np, stat)(self._data[idx])
@@ -88,14 +92,16 @@ class Episode:
 
         # Write completed episodes to a file
         for idx in np.where(dones)[0]:
+            self.continuous.update_score(idx, self.rewards[idx])
             mean = self.continuous.stat_per_game(idx, stat='mean')
+
             self.write(idx, mean)
             self.steps[idx] = 0
             self.rewards[idx] = 0
             self.episode[idx] += 1
 
     def write(self, idx, mean):
-        with open(f"{self.save_paths[idx]}{'%02d' % idx}.txt", mode='a', buffering=1) as file:
-            msg = "{episode:9,d}\t{steps:12,d}\t{reward:6,.1f}\t{mean:9,.2f}\n"
+        with open(f"{self.save_paths[idx]}.txt", mode='a', buffering=1) as file:
+            msg = "{episode:9,d}\t{steps:8,d}\t{reward:6,.1f}\t{mean:9,.2f}\n"
             msg = msg.format(episode=self.episode[idx], steps=self.steps[idx], reward=self.rewards[idx], mean=mean)
             file.write(msg)

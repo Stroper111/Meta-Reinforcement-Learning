@@ -13,17 +13,16 @@ from core.memory.sampling import BaseSampling
 
 class BaseAgent:
     def __init__(self):
-        self.setup = dict(coinrun=1)
+        self.setup = dict(bigfish=1)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
         self.save_dir = os.path.join("D:/", "checkpoint", self.current_time())
-        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=500)
+        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=30)
 
         self.env = self.processor.env
         self.input_shape = self.processor.input_shape()
         self.action_space = self.processor.output_shape()
-
 
         self.model = BaseModel(self.input_shape, self.action_space)
         self.memories = self._create_memories()
@@ -36,7 +35,7 @@ class BaseAgent:
     def _create_memories(self):
         memories = []
         for _ in range(self.instances):
-            memories.append(ReplayMemory(size=1_000, shape=self.input_shape, action_space=self.action_space))
+            memories.append(ReplayMemory(size=200_000, shape=self.input_shape, action_space=self.action_space))
         return memories
 
     def _create_samplers(self):
@@ -63,11 +62,11 @@ class BaseAgent:
                 self.memories[k].add(state=images['rgb'][k], q_values=q_values[k], action=actions[k],
                                      reward=rewards[k], end_episode=dones[k])
 
-                if self.memories[k].pointer_ratio() >= 0.1:
-                    self.loss[k].append(self.model.train(sampling=self.samplers[k]))
-
             if update:
-                print('\tloss'.ljust(17), ''.join(['{:12,.4f}'.format(np.mean(game)) for game in self.loss]))
+                for k in range(self.instances):
+                    if self.memories[k].pointer_ratio() >= 0.1:
+                        self.loss[k].append(np.mean(self.model.train(sampling=self.samplers[k])))
+                        print('\tloss'.ljust(17), ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss]))
 
             actions = np.argmax(q_values, axis=1)
 

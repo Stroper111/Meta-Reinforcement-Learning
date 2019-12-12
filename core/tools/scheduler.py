@@ -56,9 +56,9 @@ class Scheduler:
 
     def _write_summary(self, key, value):
         print(f"\nSummary (condition: {key} = {int(value)})")
-        print(f"\t{'Instance:'.ljust(15)}{''.join(['{:12,d}'.format(i) for i in range(self.env.instances)])}")
+        print(f"\t{'Instance:'.ljust(15)}{''.join(['{:15,d}'.format(i) for i in range(self.env.instances)])}")
         for stat, result in self.env.summary(stats=['mean']).items():
-            print(f"\t{stat.ljust(15)}{''.join(['{:12,.2f}'.format(each) for each in result])}")
+            print(f"\t{stat.ljust(15)}{''.join(['{:15,.2f}'.format(each) for each in result])}")
 
     def _write(self, msg):
         print(f"\r{msg}", end="")
