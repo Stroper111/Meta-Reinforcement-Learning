@@ -9,6 +9,9 @@ class BasePreProcessing:
                  statistics=True, history_size=30, save_dir=None):
 
         self.env = env
+        self.instances = env.instances
+        self.rgb2gray = rgb2gray
+        self.frame_stack = frame_stack
 
         if rgb2gray:
             self.env = RGB2Gray(self.env)
@@ -20,3 +23,17 @@ class BasePreProcessing:
         if statistics:
             assert save_dir is not None, "Need a saving directory for statistics."
             self.env = StatisticsUnique(self.env, history_size=history_size, save_dir=save_dir)
+
+    def input_shape(self):
+        """ Calculate input shape.  """
+        shape = (self.instances, 64, 64, 3)
+
+        if self.rgb2gray:
+            shape = shape[:-1]
+
+        if self.frame_stack and self.frame_stack > 0:
+            shape = (shape[0], self.frame_stack, *shape[1:])
+        return shape
+
+    def output_shape(self):
+        return self.env.action_space[0].n

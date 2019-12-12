@@ -10,7 +10,7 @@ from keras.optimizers import RMSprop
 from core.models import AbstractModel
 
 
-class Model(AbstractModel):
+class BaseModel(AbstractModel):
     def __init__(self, input_shape, action_space):
         super().__init__(input_shape, action_space)
 
