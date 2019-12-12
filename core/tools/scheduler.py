@@ -37,6 +37,7 @@ class Scheduler:
         self.total_time = time.time()
 
         self.reset_images = env.reset()
+        self._write_summary("Startup", True)
 
     def __getitem__(self, item):
         episodes, steps = self.env.scheduler()

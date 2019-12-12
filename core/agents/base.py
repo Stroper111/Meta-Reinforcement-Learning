@@ -1,4 +1,3 @@
-
 import os
 import time
 import numpy as np
@@ -10,16 +9,14 @@ from core.memory.replay_memory import ReplayMemory
 from core.memory.sampling import BaseSampling
 
 
-
 class BaseAgent:
     def __init__(self):
-
-        self.setup = dict(coinrun=6)
+        self.setup = dict(coinrun=1)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
         self.save_dir = os.path.join("D:/", "checkpoint", self.current_time())
-        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir)
+        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=500)
 
         self.env = self.processor.env
         self.input_shape = self.processor.input_shape()
@@ -35,7 +32,6 @@ class BaseAgent:
         for env in self.scheduler:
             actions = np.random.randint(0, self.action_space, self.instances)
             images, rewards, dones, infos = env.step(actions)
-
 
     @staticmethod
     def current_time():
