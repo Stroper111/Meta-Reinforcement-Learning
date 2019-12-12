@@ -18,7 +18,7 @@ class Scheduler:
         self.added_temp = False
         if not hasattr(self.env, 'scheduler'):
             self.added_temp = True
-            self.env = StatisticsUnique(self.env, save_dir="temp")
+            self.env = StatisticsUnique(self.env, save_dir="temp_statistics")
 
         if episode_update >= episode_limit:
             episode_update = episode_limit
@@ -36,29 +36,28 @@ class Scheduler:
         self.start_time = time.time()
         self.total_time = time.time()
 
+        self.reset_images = env.reset()
+
     def __getitem__(self, item):
-        pass
+        episodes, steps = self.env.scheduler()
 
-    def __next__(self):
-        episodes, steps = self.env.scheduler
-
-        for key, value in [('time',  (time.time() - self.start_time)),
+        for key, value in [('time', (time.time() - self.start_time)),
                            ('episode', episodes),
                            ('steps', steps)]:
 
             if value >= self.updates[key]:
-                self.env._write_summary()
+                self._write_summary(key, value)
                 self.updates[key] = min(self.update_counts[key] + self.updates[key], self.limits[key])
 
                 if value >= self.limits[key]:
-                    if self.added_temp:
-                        os.remove("temp")
+                    raise StopIteration
+        return self.env
 
-                    return StopIteration
-        return True
-
-    def _write_summary(self):
-        self._write(self.env.summary(stats=['mean']))
+    def _write_summary(self, key, value):
+        print(f"\nSummary (condition: {key} = {int(value)})")
+        print(f"\t{'Instance:'.ljust(15)}{''.join(['{:12d}'.format(i) for i in range(self.env.instances)])}")
+        for stat, result in self.env.summary(stats=['mean']).items():
+            print(f"\t{stat.ljust(15)}{''.join(['{:12.2f}'.format(each) for each in result])}")
 
     def _write(self, msg):
         print(f"\r{msg}", end="")

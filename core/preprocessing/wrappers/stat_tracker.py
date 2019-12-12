@@ -41,10 +41,10 @@ class StatisticsUnique(BaseWrapper):
         """ Print the information of the last statistics, stats have to be valid numpy functions.  """
         episodic = self._episodic.summary()
         continuous = self._continuous.summary(stats)
-        return episodic, continuous
+        return dict(**episodic, **continuous)
 
     def scheduler(self):
-        return dict(episode=sum(self._episodic.episode), steps=self._continuous.total_steps)
+        return sum(self._episodic.episode), self._continuous.total_steps
 
     def _step_update(self, rewards, dones):
         """ Update all statics on a step.  """
@@ -59,7 +59,7 @@ class Continuous:
 
     def summary(self, stats):
         data = {stat: [getattr(np, stat)(game) for game in self._data] for stat in stats}
-        data['total_steps'] = self.total_steps
+        data['total_steps'] = [self.total_steps]
         return data
 
     def update(self, rewards, dones):
