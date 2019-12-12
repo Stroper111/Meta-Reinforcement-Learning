@@ -40,25 +40,24 @@ class TestStatistics(unittest.TestCase):
     def test_print_statistics(self):
         """ Test if the function returns as expected.  """
         self.wrapper.reset()
-        stats_episodic, stats_continuous = self.wrapper.summary(stats=['mean'])
-        mean = stats_continuous['mean']
-        self.assertEqual(['episode', 'steps', 'rewards'], list(stats_episodic.keys()))
-        self.assertEqual(True, np.array_equal(np.zeros_like(mean), mean))
+        stats = self.wrapper.summary(stats=['mean'])
+        self.assertEqual(['episode', 'steps', 'rewards', 'mean', 'total_steps'], list(stats.keys()))
+        self.assertEqual(True, np.array_equal(np.zeros_like(stats['mean']), stats['mean']))
 
     def test_update_statistics(self):
         self.wrapper._step_update(rewards=self._fake_reward(), dones=self._fake_dones())
-        stats_episodic, stats_continuous = self.wrapper.summary(stats=['mean'])
-        self.assertEqual(True, np.array_equal([0, 0.5, 1, 1.5], stats_continuous['mean']))
+        stats = self.wrapper.summary(stats=['mean'])
+        self.assertEqual(True, np.array_equal([0, 0.5, 1, 1.5], stats['mean']))
 
         for _ in range(1, self.wrapper.continuous_history_size + 1):
             self.wrapper._step_update(rewards=self._fake_reward(), dones=self._fake_dones())
-        stats_episodic, stats_continuous = self.wrapper.summary(stats=['mean'])
+        stats = self.wrapper.summary(stats=['mean'])
 
-        self.assertEqual(True, np.array_equal(np.arange(self.env.instances), stats_continuous['mean']))
-        self.assertEqual(True, np.array_equal([3, 1, 1, 0], stats_episodic['episode']), "Wrong episode numbers")
-        self.assertEqual(True, np.array_equal([0, 11, 2, 93], stats_episodic['rewards']), "Wrong reward numbers")
-        self.assertEqual(True, np.array_equal([1, 11, 1, 31], stats_episodic['steps']), "Wrong steps number")
-        self.assertEqual(self.wrapper.continuous_history_size + 1, stats_continuous['total_steps'], "Wrong step count")
+        self.assertEqual(True, np.array_equal(np.arange(self.env.instances), stats['mean']))
+        self.assertEqual(True, np.array_equal([3, 1, 1, 0], stats['episode']), "Wrong episode numbers")
+        self.assertEqual(True, np.array_equal([0, 11, 2, 93], stats['rewards']), "Wrong reward numbers")
+        self.assertEqual(True, np.array_equal([1, 11, 1, 31], stats['steps']), "Wrong steps number")
+        self.assertEqual([self.wrapper.continuous_history_size + 1], stats['total_steps'], "Wrong step count")
 
         # Test for saving, if no clean up was required, saving is not working properly.
         self._clean_up()

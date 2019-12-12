@@ -60,12 +60,12 @@ class TestMultiEnvWrapper(unittest.TestCase):
             self.assertEqual(True, np.max(images) <= 255, "Images can have bigger values than 255")
             self.assertEqual(True, np.min(images) >= 0, "Image values can become negative. ")
 
-            stats_episodic, stats_continuous = env.summary(stats=['mean'])
-            self.assertEqual(True, np.array_equal(np.zeros(instances), stats_episodic['episode']),
+            stats = env.summary(stats=['mean'])
+            self.assertEqual(True, np.array_equal(np.zeros(instances), stats['episode']),
                              "Wrong episode numbers")
-            self.assertEqual(True, np.array_equal(np.zeros(instances), stats_episodic['rewards']),
+            self.assertEqual(True, np.array_equal(np.zeros(instances), stats['rewards']),
                              "Wrong reward  numbers")
-            self.assertEqual(True, np.array_equal(np.zeros(instances), stats_episodic['steps']),
+            self.assertEqual(True, np.array_equal(np.zeros(instances), stats['steps']),
                              "Wrong steps number")
 
 

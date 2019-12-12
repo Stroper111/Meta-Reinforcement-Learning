@@ -26,14 +26,14 @@ class BasePreProcessing:
 
     def input_shape(self):
         """ Calculate input shape.  """
-        shape = (self.instances, 64, 64, 3)
+        shape = (64, 64, 3)
 
         if self.rgb2gray:
             shape = shape[:-1]
 
         if self.frame_stack and self.frame_stack > 0:
-            shape = (shape[0], self.frame_stack, *shape[1:])
+            shape = (*shape, self.frame_stack)
         return shape
 
     def output_shape(self):
-        return self.env.action_space[0].n
+        return list(self.env.action_space.values())[0].n

@@ -38,7 +38,7 @@ class BaseModel(AbstractModel):
                 Flatten(),
 
                 Dense(name='layer_fc_out', units=action_space,
-                      kernel_initializer=init, activation='linear')
+                      activation='linear')
             ]
         )
         model.compile(optimizer=RMSprop(lr=0.0025), loss='mse')
