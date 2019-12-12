@@ -46,6 +46,9 @@ class StatisticsUnique(BaseWrapper):
     def scheduler(self):
         return sum(self._episodic.episode), self._continuous.total_steps
 
+    def model(self):
+        return sum(self._episodic.episode), self._continuous.total_steps
+
     def _step_update(self, rewards, dones):
         """ Update all statics on a step.  """
         self._episodic.update(rewards, dones)
@@ -69,7 +72,6 @@ class Continuous:
     def update_score(self, idx, reward):
         """  Updated at the end of the game.  """
         self._data[idx].append(reward)
-
 
     def stat_per_game(self, idx, stat):
         return getattr(np, stat)(self._data[idx])

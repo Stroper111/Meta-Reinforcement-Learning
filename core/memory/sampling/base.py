@@ -1,7 +1,8 @@
 import numpy as np
 
-from .abstract import AbstractSampling
+from copy import deepcopy
 
+from .abstract import AbstractSampling
 from core.memory import ReplayMemory
 
 
@@ -43,4 +44,5 @@ class BaseSampling(AbstractSampling):
 
     def reformat_states(self, states):
         """  Transforms the input of  stacked frame to the required format for the model.  """
-        return np.array(states).transpose([0, 2, 3, 1])
+        # Please always use deepcopy for this, since you use a lot of memory otherwise
+        return np.array(deepcopy(states)).transpose([0, 2, 3, 1])

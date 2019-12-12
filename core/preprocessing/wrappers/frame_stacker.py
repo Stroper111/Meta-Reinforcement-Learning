@@ -25,9 +25,6 @@ class FrameStack(BaseWrapper):
             self.frames[id].append(image)
         return dict(rgb=self._get_images()), reward, done, info
 
-    def process(self, img):
-        pass
-
     def _create_stacks(self, images):
         images = np.expand_dims(images, axis=1)
         for id, image in enumerate(images):

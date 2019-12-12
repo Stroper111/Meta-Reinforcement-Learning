@@ -18,8 +18,6 @@ class BaseModel(AbstractModel):
         self.action_space = action_space
 
         self.back_up_count = 2
-        self.episodes = 0
-        self.frames = 0
         self.save_msg = "episode {:6,d} frames {:11,d} {:s}"
 
         self.model = self.create_model(input_shape, action_space)
@@ -38,9 +36,8 @@ class BaseModel(AbstractModel):
                        filters=32, kernel_size=3, strides=2,
                        padding='same', kernel_initializer=init,
                        activation='relu'),
-
                 Flatten(),
-                Dense(name='layer_fc2', units=512, activation='relu'),
+                Dense(name='layer_fc2', units=256, activation='relu'),
                 Dense(name='layer_fc3', units=256, activation='relu'),
                 Dense(name='layer_fc_out', units=action_space, activation='linear')
             ]
@@ -54,19 +51,19 @@ class BaseModel(AbstractModel):
 
     def train(self, sampling):
         loss_history = []
-        for num, (input, output) in enumerate(sampling):
-            loss = self.model.fit(input, output, verbose=0).history['loss'][0]
+        for num, (x, y) in enumerate(sampling):
+            loss = self.model.fit(x, y, verbose=0).history['loss'][0]
             loss_history.append(loss)
-            print("\r\tIteration %4d, batch_loss: %5.4f" % (num, loss), end='')
+            print("\r\tIteration {:4,d}, batch_loss: {:7,.4f}".format(num, loss), end='')
         return loss_history
 
-    def save_model(self, save_dir):
+    def save_model(self, save_dir, episode, frames):
         self._check_create_directory(save_dir)
-        save_file = os.path.join(save_dir, self.save_msg.format(self.episodes, self.frames, "weights.h5"))
+        save_file = os.path.join(save_dir, self.save_msg.format(episode, frames, "weights.h5"))
         self.model.save_weights(save_file)
 
-    def save_checkpoint(self, save_dir):
-        self.save_model(save_dir)
+    def save_checkpoint(self, save_dir, episode, frames):
+        self.save_model(save_dir, episode, frames)
         self._remove_old_files(pattern="*weights.h5", save_dir=save_dir, back_ups=self.back_up_count)
 
     def load_model(self, load_dir):
@@ -82,7 +79,8 @@ class BaseModel(AbstractModel):
             os.makedirs(directory)
         return self
 
-    def _remove_old_files(self, pattern, save_dir, back_ups):
+    @staticmethod
+    def _remove_old_files(pattern, save_dir, back_ups):
         """ Helper to store only a limited amount of backups.  """
         files = glob.glob(os.path.join(save_dir, pattern))
         if len(files) >= (back_ups + 1):
