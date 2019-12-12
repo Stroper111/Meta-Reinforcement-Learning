@@ -1,6 +1,7 @@
 import os
 import glob
 import logging
+import numpy as np
 
 from keras import Sequential
 from keras.layers import Conv2D, Flatten, Dense
@@ -11,7 +12,7 @@ from core.models import AbstractModel
 
 
 class BaseModel(AbstractModel):
-    def __init__(self, input_shape, action_space):
+    def __init__(self, input_shape, action_space, epsilon=0.05):
         super().__init__(input_shape, action_space)
 
         self.input_shape = input_shape
@@ -21,6 +22,7 @@ class BaseModel(AbstractModel):
         self.save_msg = "episode {:6,d} frames {:11,d} {:s}"
 
         self.model = self.create_model(input_shape, action_space)
+        self.epsilon = epsilon
 
     @staticmethod
     def create_model(input_shape, action_space):
@@ -48,6 +50,18 @@ class BaseModel(AbstractModel):
 
     def predict(self, states):
         return self.model.predict(states)
+
+    def actions(self, states):
+        q_values = self.model.predict(states)
+        random = np.random.random(len(q_values))
+        explore = np.where(random < self.epsilon)
+
+        actions_explore = np.random.randint(low=0, high=self.action_space, size=len(states))
+        actions_exploit = np.argmax(q_values, axis=1)
+
+        if explore:
+            actions_exploit[explore] = actions_explore
+        return q_values, actions_exploit
 
     def train(self, sampling):
         loss_history = []

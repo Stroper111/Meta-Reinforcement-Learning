@@ -1,64 +1,86 @@
-import time
+
 import numpy as np
-import os
-
-from core.preprocessing.wrappers import StatisticsUnique
 
 
-class Scheduler:
+class LinearControlSignal:
     """
-        This class handles when to print summaries or terminate the Agent.
-        This class works together with the Statistics class.
+    A control signal that changes linearly over time.
+
+    This is used to change e.g. the learning-rate for the optimizer
+    of the Neural Network, as well as other parameters.
     """
 
-    def __init__(self, env, episode_limit=np.uint(-1), step_limit=np.uint(-1), time_limit=np.uint(-1),
-                 episode_update=np.uint(-1), step_update=np.uint(-1), time_update=np.uint(-1)):
+    def __init__(self, start_value, end_value, num_iterations, repeat=False):
+        # Store arguments in this object.
+        self.start_value = start_value
+        self.end_value = end_value
+        self.num_iterations = num_iterations
+        self.repeat = repeat
 
-        self.env = env
-        self.added_temp = False
-        if not hasattr(self.env, 'scheduler'):
-            self.added_temp = True
-            self.env = StatisticsUnique(self.env, save_dir="temp_statistics")
+        # Calculate the linear coefficient.
+        self._coefficient = (end_value - start_value) / num_iterations
 
-        if episode_update >= episode_limit:
-            episode_update = episode_limit
+    def get_value(self, iteration):
+        """Get the value of the control signal for the given iteration."""
+        if self.repeat:
+            iteration %= self.num_iterations
 
-        if step_update >= step_limit:
-            step_update = step_limit
+        if iteration < self.num_iterations:
+            value = iteration * self._coefficient + self.start_value
+        else:
+            value = self.end_value
+        return value
 
-        if time_update >= time_limit:
-            time_update = time_limit
 
-        self.limits = dict(episode=episode_limit, steps=step_limit, time=time_limit)
-        self.updates = dict(episode=episode_update, steps=step_update, time=time_update)
-        self.update_counts = dict(episode=episode_update, steps=step_update, time=time_update)
+class EpsilonGreedy:
+    """
+        The epsilon-greedy policy either takes a random action with
+        probability epsilon, or it takes the action for the highest
+        Q-value.
 
-        self.start_time = time.time()
-        self.total_time = time.time()
+        If epsilon is 1.0 then the actions are always random.
+        If epsilon is 0.0 then the actions are always argmax for the Q-values.
 
-        self.reset_images = env.reset()
-        self._write_summary("Startup", True)
+        Epsilon is typically decreased linearly from 1.0 to 0.1
+        and this is also implemented in this class.
 
-    def __getitem__(self, item):
-        episodes, steps = self.env.scheduler()
-        update = False
-        for key, value in [('time', (time.time() - self.start_time)),
-                           ('episode', episodes),
-                           ('steps', steps)]:
+        During testing, epsilon is usually chosen lower, e.g. 0.05 or 0.01
+    """
 
-            if value >= self.updates[key]:
-                self._write_summary(key, value)
-                self.updates[key] = min(self.update_counts[key] + self.updates[key], self.limits[key])
-                update = True
-                if value >= self.limits[key]:
-                    raise StopIteration
-        return self.env, update
+    def __init__(self, num_actions, epsilon_testing=0.05, num_iterations=1e6,
+                 start_value=1.0, end_value=0.1, repeat=False):
+        # Store parameters.
+        self.num_actions = num_actions
+        self.epsilon_testing = epsilon_testing
 
-    def _write_summary(self, key, value):
-        print(f"\nSummary (condition: {key} = {int(value)})")
-        print(f"\t{'Instance:'.ljust(15)}{''.join(['{:15,d}'.format(i) for i in range(self.env.instances)])}")
-        for stat, result in self.env.summary(stats=['mean']).items():
-            print(f"\t{stat.ljust(15)}{''.join(['{:15,.2f}'.format(each) for each in result])}")
+        # Create a control signal for linearly decreasing epsilon.
+        self.epsilon_linear = LinearControlSignal(num_iterations=num_iterations,
+                                                  start_value=start_value,
+                                                  end_value=end_value,
+                                                  repeat=repeat)
 
-    def _write(self, msg):
-        print(f"\r{msg}", end="")
+    def get_epsilon(self, steps, training):
+        """
+            Return the epsilon for the given iteration.
+            If training==True then epsilon is linearly decreased,
+            otherwise epsilon is a fixed number.
+        """
+        if training:
+            epsilon = self.epsilon_linear.get_value(iteration=steps)
+        else:
+            epsilon = self.epsilon_testing
+
+        return epsilon
+
+    def get_action(self, q_values, iteration, training):
+        epsilon = self.get_epsilon(steps=iteration, training=training)
+
+        # With probability epsilon.
+        if np.random.random() < epsilon:
+            # Select a random action.
+            action = np.random.randint(low=0, high=self.num_actions)
+        else:
+            # Otherwise select the action that has the highest Q-value.
+            action = np.argmax(q_values)
+
+        return action, epsilon

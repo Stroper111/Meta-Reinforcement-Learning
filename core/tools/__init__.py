@@ -1,5 +1,5 @@
 
 from .multi_env import MultiEnv
-from .scheduler import Scheduler
+from .controller import Scheduler
 
 __all__ = ['MultiEnv', 'Scheduler']

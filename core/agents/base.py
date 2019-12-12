@@ -58,7 +58,7 @@ class BaseAgent:
         for env, update in self.scheduler:
             images, rewards, dones, infos = env.step(actions)
             # Please always use deepcopy for this, since you use a lot of memory otherwise (you unpack all layzframes)
-            q_values = self.model.predict(self.reformat_states(deepcopy(images)))
+            q_values, actions_new = self.model.actions(self.reformat_states(deepcopy(images)))
 
             for k in range(self.instances):
                 self.memories[k].add(state=images['rgb'][k], q_values=q_values[k], action=actions[k],
@@ -72,7 +72,7 @@ class BaseAgent:
                                                                self.loss]))
                         self.model.save_checkpoint(self.save_dir, *env.model())
 
-            actions = np.argmax(q_values, axis=1)
+            actions = actions_new
 
     def reformat_states(self, states):
         """  Transforms the input of  stacked frame to the required format for the model.  """
