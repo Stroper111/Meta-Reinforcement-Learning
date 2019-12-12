@@ -56,6 +56,7 @@ class BaseModel(AbstractModel):
         loss = []
         for num, (input, output) in enumerate(sampling):
             loss.append(self.model.fit(input, output, verbose=0).history['loss'])
+            print("\rIteration %4d, batch_loss: %5.4f" % (num, loss[-1]), flush=True, end='')
         return loss
 
     def save_model(self, save_dir):

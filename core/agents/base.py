@@ -65,6 +65,7 @@ class BaseAgent:
             if update:
                 for k in range(self.instances):
                     if self.memories[k].pointer_ratio() >= 0.1:
+                        self.memories[k].update()
                         self.loss[k].append(np.mean(self.model.train(sampling=self.samplers[k])))
                         print('\tloss'.ljust(17), ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss]))
 
