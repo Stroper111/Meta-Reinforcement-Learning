@@ -49,15 +49,16 @@ class TestMultiEnv(unittest.TestCase):
         kwargs = dict(time_limit=2, time_update=10)
         start_time = time.time()
         for each in Scheduler(self.env, **kwargs):
-            if (time.time() - start_time) >= 2.5:
+            if (time.time() - start_time) >= (kwargs['time_limit'] + 0.2):
                 self.fail("Not terminated within expected time.")
 
     def test_step_limit(self):
-        steps = 0
         kwargs = dict(step_limit=100, step_update=50)
+        steps = 0
+
         for env in Scheduler(self.env, **kwargs):
             env.step(np.zeros(self.instances))
-            if steps > 200:
+            if steps > kwargs['step_limit']:
                 self.fail("Not terminated within expected steps.")
             steps += 1
 
@@ -68,13 +69,14 @@ class TestMultiEnv(unittest.TestCase):
 
         for env in Scheduler(self.env, **kwargs):
             env.step(np.zeros(self.instances))
-            if steps > 200:
+            if steps > kwargs['step_limit']:
                 self.fail("Not terminated within expected steps.")
             steps += 1
 
     def test_episode_limit(self):
         kwargs = dict(episode_limit=5, episode_update=3)
         episodes = 0
+
         for env in Scheduler(self.env, **kwargs):
             _, _, dones, _ = env.step(np.zeros(self.instances))
             episodes += len(np.where(dones)[0])
@@ -85,8 +87,24 @@ class TestMultiEnv(unittest.TestCase):
         """ Checks that the condition works if step update is higher than limit. """
         kwargs = dict(episode_limit=5, episode_update=10)
         episodes = 0
+
         for env in Scheduler(self.env, **kwargs):
             _, _, dones, _ = env.step(np.zeros(self.instances))
             episodes += len(np.where(dones)[0])
             if episodes > kwargs['episode_limit']:
                 self.fail("Not terminated within expected epsiodes.")
+
+    def test_combinations(self):
+        kwargs = dict(step_limit=500, episode_limit=10)
+        episodes = 0
+        steps = 0
+
+        for env in Scheduler(self.env, **kwargs):
+            _, _, dones, _ = env.step(np.zeros(self.instances))
+            episodes += len(np.where(dones)[0])
+            if episodes > kwargs['episode_limit']:
+                self.fail("Not terminated within expected epsiodes.")
+
+            if steps > kwargs['step_limit']:
+                self.fail("Not terminated within expected steps.")
+            steps += 1
