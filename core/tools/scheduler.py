@@ -32,25 +32,6 @@ class LinearControlSignal:
         return value
 
 
-class StepWiseSignal:
-    def __init__(self, start_value, end_value, num_iterations, bins, repeat=False):
-        self.start_value = start_value
-        self.end_Value = end_value
-        self.num_iterations = num_iterations
-        self.repeat = repeat
-
-        self.bins = bins
-        self.bin_size = num_iterations // bins
-        self.step_size = (self.end_Value - self.start_value) / bins
-
-    def get_value(self, iteration):
-        if self.repeat:
-            iteration %= self.num_iterations
-
-        bin = iteration // self.bin_size
-        return min(self.start_value + bin * self.step_size, self.end_Value)
-
-
 class EpsilonGreedy:
     """
         The epsilon-greedy policy either takes a random action with

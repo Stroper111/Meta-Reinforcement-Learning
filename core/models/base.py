@@ -82,13 +82,13 @@ class BaseModel(AbstractModel):
 
     def load_model(self, load_dir):
         """ Automatically load the newest model it can find in a sub directory.  """
-        files = glob.glob(os.path.join(load_dir, "/*/*", "*weights.h5"))
+        files = glob.glob(os.path.join(load_dir, "..", "/*/", "*weights.h5"))
         if files:
             newest_file = max(files, key=os.path.getctime)
             self.model.load_weights(newest_file)
             print("Checkpoint found, continuing...")
         else:
-            print("No checkpoint found, reinitiliazing variables instead...")
+            print("No checkpoint found, reinitializing variables instead...")
 
     def load_checkpoint(self, load_dir):
         self.load_model(load_dir)

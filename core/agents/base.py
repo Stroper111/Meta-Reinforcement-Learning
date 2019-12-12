@@ -5,7 +5,7 @@ import numpy as np
 from collections import deque
 from copy import deepcopy
 
-from core.tools import MultiEnv, Scheduler, StepWiseSignal
+from core.tools import MultiEnv, Scheduler
 from core.preprocessing import BasePreProcessing
 from core.models import BaseModel
 from core.memory.replay_memory import ReplayMemory
@@ -14,7 +14,7 @@ from core.memory.sampling import BaseSampling
 
 class BaseAgent:
     def __init__(self):
-        self.setup = dict(bigfish=6)
+        self.setup = dict(bigfish=1)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
@@ -35,7 +35,7 @@ class BaseAgent:
         self.kwargs = dict(step_update=25_000)
         self.scheduler = Scheduler(self.env, **self.kwargs)
 
-        self.replay_factor = StepWiseSignal(start_value=.1, end_value=1., num_iterations=50_000, bins=9, repeat=True)
+        self.replay_factor = 0.1
 
     def _create_memories(self):
         memories = []
@@ -72,7 +72,8 @@ class BaseAgent:
                                      reward=rewards[k], end_episode=dones[k])
 
             for k in range(self.instances):
-                if self.memories[k].pointer_ratio() >= self.replay_factor.get_value(steps):
+                if self.memories[k].pointer_ratio() >= self.replay_factor:
+                    self.replay_factor = (self.replay_factor + 0.1) % 1.
                     self.memories[k].update()
                     self.loss[k].append(np.mean(self.model.train(sampling=self.samplers[k])))
                     self.model.save_checkpoint(self.save_dir, episode, steps)
