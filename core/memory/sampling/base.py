@@ -37,4 +37,8 @@ class BaseSampling(AbstractSampling):
         batch_size = self.batch_size if batch_size is None else batch_size
         sample_idx = np.random.choice(range(len(self.replay_memory)), batch_size)
         model_input, model_output = self.replay_memory.get_batch(sample_idx)
-        return model_input, model_output
+        return self.reformat_states(model_input), model_output
+
+    def reformat_states(self, states):
+        """  Transforms the input of  stacked frame to the required format for the model.  """
+        return np.array(states).transpose([0, 2, 3, 1])

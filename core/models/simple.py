@@ -7,6 +7,8 @@ from keras.layers import Conv2D, Flatten, Dense
 from keras.initializers import TruncatedNormal
 from keras.optimizers import RMSprop
 
+from collections import deque
+
 from core.models import AbstractModel
 
 
@@ -46,10 +48,11 @@ class BaseModel(AbstractModel):
         return model
 
     def predict(self, states):
-        pass
+        return self.model.predict(states)
 
     def train(self, sampling):
-        pass
+        loss = self.model.fit(*sampling.random_batch(), verbose=0).history['loss']
+        return loss
 
     def save_model(self, save_dir):
         self._check_create_directory(save_dir)

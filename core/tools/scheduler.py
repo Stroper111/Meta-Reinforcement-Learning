@@ -41,7 +41,7 @@ class Scheduler:
 
     def __getitem__(self, item):
         episodes, steps = self.env.scheduler()
-
+        update = False
         for key, value in [('time', (time.time() - self.start_time)),
                            ('episode', episodes),
                            ('steps', steps)]:
@@ -49,10 +49,10 @@ class Scheduler:
             if value >= self.updates[key]:
                 self._write_summary(key, value)
                 self.updates[key] = min(self.update_counts[key] + self.updates[key], self.limits[key])
-
+                update = True
                 if value >= self.limits[key]:
                     raise StopIteration
-        return self.env
+        return self.env, update
 
     def _write_summary(self, key, value):
         print(f"\nSummary (condition: {key} = {int(value)})")
