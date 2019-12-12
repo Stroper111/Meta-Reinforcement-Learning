@@ -13,6 +13,7 @@ class MultiEnv:
             in procgen.env.ENV_NAMES and the value is the number of
             instances of this game.
     """
+    valid_games = procgen.env.ENV_NAMES
 
     def __init__(self, setup: dict):
         self.setup = None
@@ -41,11 +42,13 @@ class MultiEnv:
 
     def new_setup(self, setup):
         self.setup = setup
+        self._check_valid_setup(setup)
         self.instances = sum(setup.values())
         self.venv = self.create_games(setup)
 
     def reset(self):
-        """ Reset all the environments and return the (stacked) starting images.  """
+        """ in the new gym environment reseting is the same as create a new gym instance.  """
+        self.new_setup(self.setup)
         images = [venv.reset()['rgb'] for venv in self.venv]
         images = np.vstack(images)
         return dict(rgb=images)
@@ -77,3 +80,8 @@ class MultiEnv:
         """ Close all the environments.  """
         [venv.close() for venv in self.venv]
         self.venv = None
+
+    def _check_valid_setup(self, setup):
+        for game, instance in setup.items():
+            assert game in self.valid_games, f"Use one of the valid keys: {self.valid_games}"
+            assert isinstance(instance, int), "Please only use integers as key values."

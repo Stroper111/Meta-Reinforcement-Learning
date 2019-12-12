@@ -28,13 +28,15 @@ class TestReplayMemory(unittest.TestCase):
         self._add_data(1)
 
         self.assertEqual(True, self.memory.filled, "Memory filled not set correctly on overflow.")
-        self.assertEqual(1, self.memory.pointer, "Memory in used not reset correctly on overflow.")
+        self.assertEqual(1, self.memory.pointer, "Memory in use not reset correctly on overflow.")
 
     def test_update(self):
+        """  This only tests the execution of the function.  """
         self._add_data(self.size-1)
         self.memory.update()
 
     def _add_data(self, number):
+        """ Helper to create random data.  """
         for iteration in range(number):
             state = np.random.randint(0, 255, self.shape)
             q_values = np.random.rand(5)

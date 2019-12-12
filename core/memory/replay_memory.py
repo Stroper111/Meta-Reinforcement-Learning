@@ -32,7 +32,7 @@ class ReplayMemory:
         self.filled = False
         self.error_threshold = 0.1
 
-        self.states = np.zeros(shape=(size, *shape), dtype=np.uint8)
+        self.states = [None for _ in range(size)]
         self.q_values = np.zeros(shape=(size, action_space), dtype=np.float32)
         self.q_values_old = np.zeros(shape=(size, action_space), dtype=np.float32)
         self.actions = np.zeros(shape=size, dtype=np.uint8)
@@ -54,7 +54,8 @@ class ReplayMemory:
         return self.pointer if not self.filled else self.size
 
     def get_batch(self, idx):
-        return self.states[idx], self.q_values[idx]
+        states = [self.states[x] for x in idx]
+        return states, self.q_values[idx]
 
     def reset(self):
         self.pointer = 0
@@ -70,7 +71,7 @@ class ReplayMemory:
     def is_full(self):
         return self.pointer >= self.size
 
-    def add(self, state, q_values, action, reward, end_life, end_episode):
+    def add(self, state, q_values, action, reward, end_episode):
         if not self.is_full():
             k = self.pointer
             self.pointer += 1
@@ -78,7 +79,6 @@ class ReplayMemory:
             self.states[k] = state
             self.q_values[k] = q_values
             self.actions[k] = action
-            self.end_life[k] = end_life
             self.end_episode[k] = end_episode
             self.rewards[k] = np.clip(reward, -1.0, 1.0)
 
@@ -87,17 +87,15 @@ class ReplayMemory:
         for k in reversed(range(self.pointer - 1)):
             action = self.actions[k]
             reward = self.rewards[k]
-            end_life = self.end_life[k]
             end_episode = self.end_episode[k]
 
-            if end_life or end_episode:
+            if end_episode:
                 action_value = reward
             else:
                 action_value = reward + self.gamma * np.max(self.q_values[k + 1])
 
             self.estimation_errors[k] = abs(action_value - self.q_values[k, action])
             self.q_values[k, action] = action_value
-        self.print_statistics()
 
     def print_statistics(self):
         print("\nReplay-memory statistics")
@@ -119,8 +117,7 @@ class ReplayMemory:
         print(msg.format(threshold=self.error_threshold, error_count=error_count, total=self.pointer,
                          percentage=error_count / self.pointer))
 
-        end_life_percentage = np.count_nonzero(self.end_life) / self.pointer
         end_episode_percentage = np.count_nonzero(self.end_episode) / self.pointer
         non_zero_percentage = np.count_nonzero(self.rewards) / self.pointer
-        msg = "\tend_life: {life:.1%}, end_episode: {episode:.1%}, reward non-zero: {non_zero:.1%}"
-        print(msg.format(life=end_life_percentage, episode=end_episode_percentage, non_zero=non_zero_percentage))
+        msg = "\tend_episode: {episode:.1%}, reward non-zero: {non_zero:.1%}"
+        print(msg.format(episode=end_episode_percentage, non_zero=non_zero_percentage))

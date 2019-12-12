@@ -1,7 +1,8 @@
 import numpy as np
 
-from .abstract import AbstractSampling
+from copy import deepcopy
 
+from .abstract import AbstractSampling
 from core.memory import ReplayMemory
 
 
@@ -11,6 +12,9 @@ class BaseSampling(AbstractSampling):
         predefined batch sizes as a generator function or normal
         batches. All samples are taken randomly from the replay memory.
 
+        This Sampling is meant to work together with the frame stacking
+        hence there is a conversion before returning the values.
+
         batch_size: int
             The size of one batch
     """
@@ -19,7 +23,6 @@ class BaseSampling(AbstractSampling):
         super().__init__(replay_memory, batch_size)
         self.replay_memory = replay_memory
         self.batch_size = batch_size
-        pass
 
     def __len__(self):
         return len(self.replay_memory) // self.batch_size
@@ -30,11 +33,16 @@ class BaseSampling(AbstractSampling):
 
         sample_idx = np.random.choice(range(len(self.replay_memory)), self.batch_size)
         model_input, model_output = self.replay_memory.get_batch(sample_idx)
-        return model_input, model_output
+        return self.reformat_states(model_input), model_output
 
     def random_batch(self, batch_size: int=None):
         """  Returns a single random batch.  """
         batch_size = self.batch_size if batch_size is None else batch_size
         sample_idx = np.random.choice(range(len(self.replay_memory)), batch_size)
         model_input, model_output = self.replay_memory.get_batch(sample_idx)
-        return model_input, model_output
+        return self.reformat_states(model_input), model_output
+
+    def reformat_states(self, states):
+        """  Transforms the input of  stacked frame to the required format for the model.  """
+        # Please always use deepcopy for this, since you use a lot of memory otherwise
+        return np.array(deepcopy(states)).transpose([0, 2, 3, 1])

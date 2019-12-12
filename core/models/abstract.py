@@ -43,12 +43,12 @@ class AbstractModel(ABC):
         pass
 
     @abstractmethod
-    def save_model(self, save_dir: str):
+    def save_model(self, save_dir: str, episode, steps):
         """ Store the model to a file.  """
         pass
 
     @abstractmethod
-    def save_checkpoint(self, save_dir: str):
+    def save_checkpoint(self, save_dir: str, episode, steps):
         """ Store the model and metadata to continue a training session.  """
         pass
 
