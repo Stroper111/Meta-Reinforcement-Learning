@@ -14,7 +14,7 @@ from core.memory.sampling import BaseSampling
 
 class BaseAgent:
     def __init__(self):
-        self.setup = dict(bigfish=1)
+        self.setup = dict(bigfish=5)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
@@ -76,7 +76,7 @@ class BaseAgent:
                     self.replay_factor = (self.replay_factor + 0.1) % 1.
                     self.memories[k].update()
                     self.loss[k].append(np.mean(self.model.train(sampling=self.samplers[k])))
-                    self.model.save_checkpoint(self.save_dir, episode, steps)
+                    self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
 
             if update:
                 print('\r\tloss (average)'.ljust(18), ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss]))

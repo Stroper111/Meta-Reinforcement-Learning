@@ -66,5 +66,6 @@ class Scheduler:
         seconds = int(time.time() - self.start_time)
         minutes = seconds // 60
         hours = minutes // 60
-        seconds = seconds % 60
+        seconds %= 60
+        minutes %= 60
         return '%2d hours %2d minutes %2d seconds' % (hours, minutes, seconds)
