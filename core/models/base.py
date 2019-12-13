@@ -70,10 +70,8 @@ class BaseModel(AbstractModel):
 
     def train(self, sampling):
         loss_history = []
-        for num, (x, y) in enumerate(sampling):
-            loss = self.model.fit(x, y, verbose=0).history['loss'][0]
-            loss_history.append(loss)
-            print("\r\tIteration {:4,d}/{:4,d}, batch_loss: {:7,.4f}".format(num+1, len(sampling), loss), end='')
+        loss = self.model.fit_generator(sampling, verbose=0).history['loss'][0]
+        loss_history.append(loss)
         return loss_history
 
     def train_once(self, sampling):

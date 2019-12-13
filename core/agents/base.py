@@ -32,7 +32,7 @@ class BaseAgent:
         self.samplers = self._create_samplers()
         self.loss = self._create_loss()
 
-        self.kwargs = dict(step_update=25_000)
+        self.kwargs = dict(step_update=5_000)
         self.scheduler = Scheduler(self.env, **self.kwargs)
 
         self.replay_factor = 0.1
@@ -40,7 +40,7 @@ class BaseAgent:
     def _create_memories(self):
         memories = []
         for _ in range(self.instances):
-            memories.append(ReplayMemory(size=250_000, shape=self.input_shape, action_space=self.action_space))
+            memories.append(ReplayMemory(size=5_000, shape=self.input_shape, action_space=self.action_space))
         return memories
 
     def _create_samplers(self):

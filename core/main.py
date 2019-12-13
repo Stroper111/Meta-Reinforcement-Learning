@@ -1,3 +1,8 @@
+import os
+import sys
+sys.path.append(os.getcwd())
+
+
 from core import BaseAgent
 
 if __name__ == '__main__':

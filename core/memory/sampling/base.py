@@ -1,12 +1,13 @@
 import numpy as np
 
 from copy import deepcopy
+from keras.utils import Sequence
 
 from .abstract import AbstractSampling
 from core.memory import ReplayMemory
 
 
-class BaseSampling(AbstractSampling):
+class BaseSampling(AbstractSampling, Sequence):
     """
         Base implementation of Sampling. Creates different batches of
         predefined batch sizes as a generator function or normal
