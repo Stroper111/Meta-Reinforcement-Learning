@@ -38,8 +38,13 @@ class BaseModel(AbstractModel):
                        filters=32, kernel_size=3, strides=2,
                        padding='same', kernel_initializer=init,
                        activation='relu'),
+                Conv2D(input_shape=input_shape, name='layer_conv3',
+                       filters=32, kernel_size=3, strides=2,
+                       padding='same', kernel_initializer=init,
+                       activation='relu'),
                 Flatten(),
-                Dense(name='layer_fc2', units=256, activation='relu'),
+                Dense(name='layer_fc1', units=1024, activation='relu'),
+                Dense(name='layer_fc2', units=512, activation='relu'),
                 Dense(name='layer_fc3', units=256, activation='relu'),
                 Dense(name='layer_fc_out', units=action_space, activation='linear')
             ]
@@ -68,7 +73,7 @@ class BaseModel(AbstractModel):
         for num, (x, y) in enumerate(sampling):
             loss = self.model.fit(x, y, verbose=0).history['loss'][0]
             loss_history.append(loss)
-            print("\r\tIteration {:4,d}/{:4,d}, batch_loss: {:7,.4f}".format(num, len(sampling), loss), end='')
+            print("\r\tIteration {:4,d}/{:4,d}, batch_loss: {:7,.4f}".format(num+1, len(sampling), loss), end='')
         return loss_history
 
     def train_once(self, sampling):

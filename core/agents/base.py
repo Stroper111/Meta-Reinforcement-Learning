@@ -14,7 +14,7 @@ from core.memory.sampling import BaseSampling
 
 class BaseAgent:
     def __init__(self):
-        self.setup = dict(bigfish=5)
+        self.setup = dict(bigfish=1)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
@@ -40,7 +40,7 @@ class BaseAgent:
     def _create_memories(self):
         memories = []
         for _ in range(self.instances):
-            memories.append(ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space))
+            memories.append(ReplayMemory(size=250_000, shape=self.input_shape, action_space=self.action_space))
         return memories
 
     def _create_samplers(self):
