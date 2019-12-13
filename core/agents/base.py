@@ -14,13 +14,13 @@ from core.memory.sampling import BaseSampling
 
 class BaseAgent:
     def __init__(self):
-        self.setup = dict(bigfish=1)
+        self.setup = dict(bigfish=10)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
         games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
         self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
-        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=30)
+        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=500)
 
         self.env = self.processor.env
         self.input_shape = self.processor.input_shape()
@@ -32,7 +32,7 @@ class BaseAgent:
         self.samplers = self._create_samplers()
         self.loss = self._create_loss()
 
-        self.kwargs = dict(step_update=25_000)
+        self.kwargs = dict(step_update=5_000)
         self.scheduler = Scheduler(self.env, **self.kwargs)
 
         self.replay_factor = 0.1
@@ -40,7 +40,7 @@ class BaseAgent:
     def _create_memories(self):
         memories = []
         for _ in range(self.instances):
-            memories.append(ReplayMemory(size=250_000, shape=self.input_shape, action_space=self.action_space))
+            memories.append(ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space))
         return memories
 
     def _create_samplers(self):
@@ -73,13 +73,16 @@ class BaseAgent:
 
             for k in range(self.instances):
                 if self.memories[k].pointer_ratio() >= self.replay_factor:
-                    self.replay_factor = (self.replay_factor + 0.1) % 1.
                     self.memories[k].update()
-                    self.loss[k].append(np.mean(self.model.train(sampling=self.samplers[k])))
+                    self.loss[k].append(self.model.train(sampling=self.samplers[k]))
                     self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
 
+                    if k == (self.instances - 1):
+                        self.replay_factor = (self.replay_factor + 0.1) % 1.
+
             if update:
-                print('\r\tloss (average)'.ljust(18), ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss]))
+                print('\r\tloss (average)'.ljust(18),
+                      ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss]))
 
             actions = actions_new
 

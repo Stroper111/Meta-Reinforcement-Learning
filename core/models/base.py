@@ -69,10 +69,8 @@ class BaseModel(AbstractModel):
         return q_values, actions_exploit
 
     def train(self, sampling):
-        loss_history = []
         loss = self.model.fit_generator(sampling, verbose=0).history['loss'][0]
-        loss_history.append(loss)
-        return loss_history
+        return loss
 
     def train_once(self, sampling):
         x, y = sampling.random_batch()

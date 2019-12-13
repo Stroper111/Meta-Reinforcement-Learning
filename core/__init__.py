@@ -1,3 +1,7 @@
+import os
+import sys
+directory = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(directory)
 
 import core.preprocessing.wrappers as wrappers
 

@@ -1,7 +1,8 @@
 import os
 import sys
-sys.path.append(os.getcwd())
 
+directory = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(directory)
 
 from core import BaseAgent
 
