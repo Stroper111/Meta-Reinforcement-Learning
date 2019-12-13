@@ -20,7 +20,7 @@ class BaseAgent:
 
         games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
         self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
-        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=500)
+        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=50)
 
         self.env = self.processor.env
         self.input_shape = self.processor.input_shape()
@@ -81,8 +81,8 @@ class BaseAgent:
                         self.replay_factor = (self.replay_factor + 0.1) % 1.
 
             if update:
-                print('\r\tloss (average)'.ljust(18),
-                      ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss]))
+                loss_msg = ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss])
+                print('\r\tloss (average)'.ljust(18), loss_msg)
 
             actions = actions_new
 
