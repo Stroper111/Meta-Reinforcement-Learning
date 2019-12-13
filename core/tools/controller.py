@@ -68,4 +68,4 @@ class Scheduler:
         hours = minutes // 60
         seconds %= 60
         minutes %= 60
-        return '%2d hours %2d minutes %2d seconds' % (hours, minutes, seconds)
+        return '%2d hours %02d minutes %02d seconds' % (hours, minutes, seconds)

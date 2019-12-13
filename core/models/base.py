@@ -71,6 +71,12 @@ class BaseModel(AbstractModel):
             print("\r\tIteration {:4,d}/{:4,d}, batch_loss: {:7,.4f}".format(num, len(sampling), loss), end='')
         return loss_history
 
+    def train_once(self, sampling):
+        x, y = sampling.random_batch()
+        history = self.model.fit(x, y, verbose=0)
+        loss = history.history['loss'][0]
+        return loss
+
     def save_model(self, save_dir, episode, steps):
         self._check_create_directory(save_dir)
         save_file = os.path.join(save_dir, self.save_msg.format(episode, steps, "weights.h5"))
