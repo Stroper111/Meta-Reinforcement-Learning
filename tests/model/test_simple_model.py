@@ -55,13 +55,12 @@ class TestSimpleModel(unittest.TestCase):
         self.assertEqual(self.action_space, self.model.action_space, "Wrong action space")
 
     def test_saving_loading(self):
-        self.model.save_model(self.full_path_directory)
-        self.model.load_model(self.full_path_directory)
+        self.model.save_model(self.full_path_directory, episode=0, steps=0)
+        load = self.model.load_model(self.full_path_directory)
+        self.assertEqual(True, load, "Model not loaded correctly")
 
         for episode in range(15):
-            self.model.episodes = episode * 100
-            self.model.frames = episode * 4048
-            self.model.save_checkpoint(self.full_path_directory)
+            self.model.save_checkpoint(self.full_path_directory, episode=episode * 100, steps=episode * 4048)
 
         saved_models = glob.glob(os.path.join(self.full_path_directory, "*weights.h5"))
         self.assertEqual(self.back_up_count, len(saved_models), "The back_up count is not set correctly")

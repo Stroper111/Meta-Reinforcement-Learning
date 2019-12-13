@@ -29,6 +29,8 @@ class TestSampling(unittest.TestCase):
 
     def test_random_batch(self):
         model_input, model_output = self.sampling.random_batch()
+        # This is required whenever there is no stacking
+        model_input = model_input.transpose([0, 3, 1, 2])
         self.assertEqual((self.batch_size, *self.shape), model_input.shape, "Unequal dimensions of random batch")
         self.assertEqual((self.batch_size, self.action_space), model_output.shape, "Unequal dimensions of random batch")
 

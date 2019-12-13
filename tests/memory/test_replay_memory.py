@@ -42,9 +42,8 @@ class TestReplayMemory(unittest.TestCase):
             q_values = np.random.rand(5)
             action = np.random.randint(0, self.action_space)
             reward = iteration - 25
-            end_life = 1 if iteration % 7 == 0 else 0
             end_episode = 1 if iteration % 25 == 0 else 0
-            self.memory.add(state, q_values, action, reward, end_life, end_episode)
+            self.memory.add(state, q_values, action, reward, end_episode)
 
 
 if __name__ == '__main__':

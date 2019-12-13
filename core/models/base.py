@@ -71,13 +71,13 @@ class BaseModel(AbstractModel):
             print("\r\tIteration {:4,d}/{:4,d}, batch_loss: {:7,.4f}".format(num, len(sampling), loss), end='')
         return loss_history
 
-    def save_model(self, save_dir, episode, frames):
+    def save_model(self, save_dir, episode, steps):
         self._check_create_directory(save_dir)
-        save_file = os.path.join(save_dir, self.save_msg.format(episode, frames, "weights.h5"))
+        save_file = os.path.join(save_dir, self.save_msg.format(episode, steps, "weights.h5"))
         self.model.save_weights(save_file)
 
-    def save_checkpoint(self, save_dir, episode, frames):
-        self.save_model(save_dir, episode, frames)
+    def save_checkpoint(self, save_dir, episode, steps):
+        self.save_model(save_dir, episode, steps)
         self._remove_old_files(pattern="*weights.h5", save_dir=save_dir, back_ups=self.back_up_count)
 
     def load_model(self, load_dir):
@@ -87,8 +87,10 @@ class BaseModel(AbstractModel):
             newest_file = max(files, key=os.path.getctime)
             self.model.load_weights(newest_file)
             print("Checkpoint found, continuing...")
+            return False
         else:
             print("No checkpoint found, reinitializing variables instead...")
+            return True
 
     def load_checkpoint(self, load_dir):
         self.load_model(load_dir)
