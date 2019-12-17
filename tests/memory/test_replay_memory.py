@@ -32,16 +32,18 @@ class TestReplayMemory(unittest.TestCase):
 
     def test_update(self):
         """  This only tests the execution of the function.  """
-        self._add_data(self.size-1)
+        self._add_data(self.size - 1)
         self.memory.update()
+        # Expected output is 1 * 1.97**steps for 1 q value, and 1 if episode is done. (every 25 steps)
+        # self.memory.q_values
 
     def _add_data(self, number):
         """ Helper to create random data.  """
         for iteration in range(number):
             state = np.random.randint(0, 255, self.shape)
-            q_values = np.random.rand(5)
-            action = np.random.randint(0, self.action_space)
-            reward = iteration - 25
+            q_values = np.zeros(self.action_space)
+            action = iteration % self.action_space
+            reward = 1
             end_episode = 1 if iteration % 25 == 0 else 0
             self.memory.add(state, q_values, action, reward, end_episode)
 
