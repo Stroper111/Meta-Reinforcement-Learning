@@ -22,23 +22,19 @@ class AbstractModel(ABC):
             optimizer: name = optimizer settings
             compile: name = value (except the optimizer)
     """
+    model: keras.models
 
     def __init__(self, input_shape: Union[tuple, list], action_space: int):
         pass
 
     @staticmethod
     @abstractmethod
-    def create_model(input_shape, action_space) -> keras.models:
+    def create_model(input_shape: Union[tuple, list], action_space: int) -> keras.models:
         """ Creates the model.  """
         pass
 
     @abstractmethod
-    def predict(self, states: np.array) -> np.array:
-        """ Returns the prediction of a model.  """
-        pass
-
-    @abstractmethod
-    def actions(self, states):
+    def actions(self, states) -> np.array:
         """ Return the action to execute, this can be combined with epsilon.  """
         pass
 

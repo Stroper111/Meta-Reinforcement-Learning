@@ -1,8 +1,11 @@
+
+from core.preprocessing import AbstractPreProcessing
+
 from core.tools import MultiEnv
 from core.preprocessing.wrappers import RGB2Gray, FrameStack, StatisticsUnique
 
 
-class BasePreProcessing:
+class BasePreProcessing(AbstractPreProcessing):
     def __init__(self, env: MultiEnv,
                  rgb2gray=True,
                  frame_stack=4,

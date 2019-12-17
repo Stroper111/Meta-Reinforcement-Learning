@@ -57,7 +57,7 @@ class BaseAgent:
 
     def run(self):
         images = self.scheduler.reset_images
-        actions = np.argmax(self.model.predict(self.reformat_states(images)), axis=1)
+        q_values, actions = self.model.actions(self.reformat_states(images))
 
         for env, update, episode, steps in self.scheduler:
             images, rewards, dones, infos = env.step(actions)
