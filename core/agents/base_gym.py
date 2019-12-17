@@ -28,11 +28,11 @@ class BaseAgentGym:
 
         self.model = BaseModelGym(self.input_shape, self.action_space)
         # self.model.load_checkpoint(self.save_dir)
-        self.memory = [ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space)]
-        self.sampler = [BaseSamplingGym(self.memory[0], batch_size=32)]
+        self.memory = [ReplayMemory(size=5_000, shape=self.input_shape, action_space=self.action_space)]
+        self.sampler = [BaseSamplingGym(self.memory[0], batch_size=64)]
         self.loss = [deque([0], maxlen=100)]
 
-        kwargs = dict(episode_limit=10_000, episode_update=1_000)
+        kwargs = dict(episode_limit=10_000, time_update=5)
         self.scheduler = Scheduler(self.env, **kwargs)
 
     def run(self):
@@ -47,9 +47,12 @@ class BaseAgentGym:
             memory.add(state=state['rgb'][0], q_values=q_values[0], action=action[0],
                        reward=reward[0], end_episode=done[0])
 
-            if len(memory) > self.sampler[0].batch_size:
+            if done[0] and len(memory) > self.sampler[0].batch_size:
                 memory.update()
                 self.loss[0].append(self.model.train(sampling=self.sampler[0]))
+
+            if memory.is_full():
+                memory.reset()
 
             if update:
                 self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
