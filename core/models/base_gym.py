@@ -10,7 +10,7 @@ class BaseModelGym(BaseModel):
     def create_model(input_shape, action_space):
         model = Sequential(
                 [
-                    Dense(name='layer_fc_in', input_shape=(4,), units=16, activation='relu'),
+                    Dense(name='layer_fc_in', input_shape=input_shape, units=16, activation='relu'),
                     Dense(name='layer_fc1', units=32, activation='relu'),
                     Dense(name='layer_fc2', units=32, activation='relu'),
                     Dense(name='layer_fc3', units=16, activation='relu'),

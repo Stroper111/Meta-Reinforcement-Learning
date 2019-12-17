@@ -6,7 +6,7 @@ import gym
 from core.tools import Scheduler
 from core.models import BaseModelGym
 from core.memory.replay_memory import ReplayMemory
-from core.memory.sampling import BaseSampling
+from core.memory.sampling import BaseSamplingGym
 from core.preprocessing import BasePreProcessingGym
 
 from collections import deque
@@ -29,7 +29,7 @@ class BaseAgentGym:
         self.model = BaseModelGym(self.input_shape, self.action_space)
         # self.model.load_checkpoint(self.save_dir)
         self.memory = [ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space)]
-        self.sampler = [BaseSampling(self.memory[0], batch_size=32)]
+        self.sampler = [BaseSamplingGym(self.memory[0], batch_size=32)]
         self.loss = [deque([0], maxlen=100)]
 
         kwargs = dict(episode_limit=10_000, episode_update=1_000)
@@ -37,7 +37,7 @@ class BaseAgentGym:
 
     def run(self):
         state = self.scheduler.reset_images
-        q_values, action = self.model.actions(state)
+        q_values, action = self.model.actions(state['rgb'])
 
         for env, update, episode, steps in self.scheduler:
             # Remember all things are stuck in an array

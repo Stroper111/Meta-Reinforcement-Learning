@@ -22,7 +22,7 @@ class ReplayMemory:
             Discount-factor used for updating Q-values.
     """
 
-    def __init__(self, size, shape, action_space, alpha=0.10, gamma=0.97):
+    def __init__(self, size, shape, action_space, alpha=0.10, gamma=0.97, stackedframes=False):
         self.size = size
         self.shape = shape
         self.alpha =  alpha
@@ -32,8 +32,11 @@ class ReplayMemory:
         self.filled = False
         self.error_threshold = 0.1
 
-        # States are expected to be LazyFrames
-        self.states = [None for _ in range(size)]
+        if stackedframes:
+            # States are expected to be LazyFrames
+            self.states = [None for _ in range(size)]
+        else:
+            self.states = np.zeros(shape=(size, *shape), dtype=np.float32)
         self.q_values = np.zeros(shape=(size, action_space), dtype=np.float32)
         self.q_values_old = np.zeros(shape=(size, action_space), dtype=np.float32)
         self.actions = np.zeros(shape=size, dtype=np.uint8)

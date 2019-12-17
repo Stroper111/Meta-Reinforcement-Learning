@@ -88,7 +88,7 @@ class BaseAgent:
 
     @staticmethod
     def reformat_states(states):
-        """  Transforms the input of  stacked frame to the required format for the model.  """
+        """  Transforms the input of stacked frame to the required format for the model.  """
         return np.array(states['rgb']).transpose([0, 2, 3, 1])
 
     @staticmethod
