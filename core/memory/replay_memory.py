@@ -32,6 +32,7 @@ class ReplayMemory:
         self.filled = False
         self.error_threshold = 0.1
 
+        # States are expected to be LazyFrames
         self.states = [None for _ in range(size)]
         self.q_values = np.zeros(shape=(size, action_space), dtype=np.float32)
         self.q_values_old = np.zeros(shape=(size, action_space), dtype=np.float32)

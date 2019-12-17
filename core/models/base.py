@@ -19,7 +19,7 @@ class BaseModel(AbstractModel):
         self.action_space = action_space
 
         self.back_up_count = 2
-        self.save_msg = "episode {:6,d} frames {:11,d} {:s}"
+        self.save_msg = "episode {:7,d} frames {:11,d} {:s}"
 
         self.model = self.create_model(input_shape, action_space)
         self.epsilon = epsilon
