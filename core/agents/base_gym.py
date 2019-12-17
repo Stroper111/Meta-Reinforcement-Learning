@@ -28,12 +28,16 @@ class BaseAgentGym:
 
         self.model = BaseModelGym(self.input_shape, self.action_space)
         # self.model.load_checkpoint(self.save_dir)
-        self.memory = [ReplayMemory(size=5_000, shape=self.input_shape, action_space=self.action_space)]
-        self.sampler = [BaseSamplingGym(self.memory[0], batch_size=64)]
+        self.memory = [ReplayMemory(size=2_000, shape=self.input_shape, action_space=self.action_space, gamma=0.99)]
+        self.sampler = [BaseSamplingGym(self.memory[0], batch_size=32)]
         self.loss = [deque([0], maxlen=100)]
 
-        kwargs = dict(episode_limit=10_000, time_update=5)
+        kwargs = dict(episode_limit=1_000, time_update=5)
         self.scheduler = Scheduler(self.env, **kwargs)
+
+        self.epsilon = 1
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.999
 
     def run(self):
         state = self.scheduler.reset_images
@@ -47,16 +51,24 @@ class BaseAgentGym:
             memory.add(state=state['rgb'][0], q_values=q_values[0], action=action[0],
                        reward=reward[0], end_episode=done[0])
 
-            if done[0] and len(memory) > self.sampler[0].batch_size:
+            if memory.is_full():
                 memory.update()
                 self.loss[0].append(self.model.train(sampling=self.sampler[0]))
-
-            if memory.is_full():
                 memory.reset()
 
             if update:
                 self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
+                loss_msg = ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss])
+                print('\r\tloss (average)'.ljust(18), loss_msg)
 
+            q_values, action = self.model.actions(state['rgb'])
+
+            if (np.random.rand() < self.epsilon):
+                action = np.random.randint(0, self.action_space, (1,))
+
+            self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
+
+        print("\nRun completed, models and logs are located here:\n", self.save_dir.replace("\\", "/"))
 
     def _create_env(self, setup):
         game = self._validate_input(setup)
