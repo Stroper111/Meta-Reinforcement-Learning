@@ -40,7 +40,8 @@ class BaseAgent:
     def _create_memories(self):
         memories = []
         for _ in range(self.instances):
-            memories.append(ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space))
+            memories.append(ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space,
+                                         stacked_frames=True))
         return memories
 
     def _create_samplers(self):

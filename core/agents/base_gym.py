@@ -12,6 +12,7 @@ from core.preprocessing import BasePreProcessingGym
 from collections import deque
 
 
+
 class BaseAgentGym:
     def __init__(self, setup):
         self.setup = setup
@@ -20,7 +21,7 @@ class BaseAgentGym:
 
         games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
         self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
-        self.processor = BasePreProcessingGym(self.env, save_dir=self.save_dir, history_size=50)
+        self.processor = BasePreProcessingGym(self.env, save_dir=self.save_dir, history_size=5)
 
         self.env = self.processor.env
         self.input_shape = self.processor.input_shape()
@@ -28,16 +29,16 @@ class BaseAgentGym:
 
         self.model = BaseModelGym(self.input_shape, self.action_space)
         # self.model.load_checkpoint(self.save_dir)
-        self.memory = [ReplayMemory(size=2_000, shape=self.input_shape, action_space=self.action_space, gamma=0.99)]
-        self.sampler = [BaseSamplingGym(self.memory[0], batch_size=32)]
+        self.memory = [ReplayMemory(size=2_000, shape=self.input_shape, action_space=self.action_space)]
+        self.sampler = [BaseSamplingGym(self.memory[0], self.model, gamma=0.95, batch_size=32)]
         self.loss = [deque([0], maxlen=100)]
 
-        kwargs = dict(episode_limit=1_000, time_update=5)
+        kwargs = dict(episode_limit=1_000, episode_update=1)
         self.scheduler = Scheduler(self.env, **kwargs)
 
         self.epsilon = 1
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.999
+        self.epsilon_decay = 0.995
 
     def run(self):
         state = self.scheduler.reset_images
@@ -47,14 +48,15 @@ class BaseAgentGym:
             # Remember all things are stuck in an array
             state, reward, done, info = env.step(action)
 
-            memory = self.memory[0]
-            memory.add(state=state['rgb'][0], q_values=q_values[0], action=action[0],
-                       reward=reward[0], end_episode=done[0])
+            for k in range(self.instances):
+                memory = self.memory[k]
+                memory.add(state=state['rgb'][k], action=action[k], reward=reward[k], end_episode=done[k])
 
-            if memory.is_full():
-                memory.update()
-                self.loss[0].append(self.model.train(sampling=self.sampler[0]))
-                memory.reset()
+                if steps > self.sampler[k].batch_size:
+                    self.loss[k].append(self.model.train_once(sampling=self.sampler[k]))
+
+                if memory.is_full():
+                    memory.refill_memory()
 
             if update:
                 self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
@@ -65,7 +67,6 @@ class BaseAgentGym:
 
             if (np.random.rand() < self.epsilon):
                 action = np.random.randint(0, self.action_space, (1,))
-
             self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
 
         print("\nRun completed, models and logs are located here:\n", self.save_dir.replace("\\", "/"))

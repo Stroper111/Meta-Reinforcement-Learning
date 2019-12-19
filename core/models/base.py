@@ -53,6 +53,9 @@ class BaseModel(AbstractModel):
         model.summary()
         return model
 
+    def predict(self, states):
+        return self.model.predict(states)
+
     def actions(self, states):
         q_values = self.model.predict(states)
         random = np.random.random(len(q_values))

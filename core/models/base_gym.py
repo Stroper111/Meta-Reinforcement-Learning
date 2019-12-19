@@ -1,3 +1,5 @@
+import numpy as np
+
 from keras import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
@@ -18,3 +20,9 @@ class BaseModelGym(BaseModel):
         model.compile(optimizer=Adam(lr=1e-3), loss='mse')
         model.summary()
         return model
+
+    def actions(self, states):
+        """ For this example we sample epsilon outside of the model.  """
+        q_values = self.model.predict(states)
+        action = np.argmax(q_values, axis=1)
+        return q_values, action

@@ -14,7 +14,7 @@ class TestReplayMemory(unittest.TestCase):
         self.gamma = 0.97
 
         self.memory = ReplayMemory(size=self.size, shape=self.shape, action_space=self.action_space,
-                                   alpha=self.alpha, gamma=self.gamma)
+                                   alpha=self.alpha, gamma=self.gamma, stacked_frames=False)
 
     def test_steps(self):
         self._add_data(51)

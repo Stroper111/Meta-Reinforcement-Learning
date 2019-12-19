@@ -2,7 +2,7 @@ import numpy as np
 import keras
 
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Union, Any
 
 from keras import Sequential, Input
 from core.memory import BaseSampling
@@ -31,6 +31,11 @@ class AbstractModel(ABC):
     @abstractmethod
     def create_model(input_shape: Union[tuple, list], action_space: int) -> keras.models:
         """ Creates the model.  """
+        pass
+
+    @abstractmethod
+    def predict(self, states) -> np.array:
+        """ Return the predictions of your model.  """
         pass
 
     @abstractmethod
