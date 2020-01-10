@@ -1,18 +1,18 @@
 
 from core.preprocessing import AbstractPreProcessing
-
-from core.tools import MultiEnv
-from core.preprocessing.wrappers import RGB2Gray, FrameStack, StatisticsUnique
+from core.preprocessing.wrappers import RGB2Gray, FrameStack, StatisticsUnique, GymWrapper
 
 
-class BasePreProcessing(AbstractPreProcessing):
-    def __init__(self, env: MultiEnv,
-                 rgb2gray=True,
-                 frame_stack=4,
+class BasePreProcessingGym(AbstractPreProcessing):
+    def __init__(self, env,
+                 rgb2gray=False,
+                 frame_stack=0,
                  statistics=True, history_size=30, save_dir=None):
 
         self.env = env
-        self.instances = env.instances
+        self.env = GymWrapper(self.env)
+
+        self.instances = self.env.instances
         self.rgb2gray = rgb2gray
         self.frame_stack = frame_stack
 
@@ -29,7 +29,7 @@ class BasePreProcessing(AbstractPreProcessing):
 
     def input_shape(self):
         """ Calculate input shape.  """
-        shape = (64, 64, 3)
+        shape = self.env.observation_space.shape
 
         if self.rgb2gray:
             shape = shape[:-1]
@@ -39,4 +39,4 @@ class BasePreProcessing(AbstractPreProcessing):
         return shape
 
     def output_shape(self):
-        return list(self.env.action_space.values())[0].n
+        return self.env.action_space.n

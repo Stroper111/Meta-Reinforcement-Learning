@@ -37,7 +37,7 @@ class MultiEnv:
         """ Helper for creating all environments with the correct number of instances.  """
         venv = []
         for game, instances in setup.items():
-            venv.append(procgen.ProcgenEnv(num_envs=instances, env_name=game))
+            venv.append(procgen.ProcgenEnv(num_envs=instances, env_name=game, distribution_mode='easy'))
         return venv
 
     def new_setup(self, setup):

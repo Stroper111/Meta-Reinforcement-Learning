@@ -1,12 +1,13 @@
 import numpy as np
 
 from copy import deepcopy
+from keras.utils import Sequence
 
 from .abstract import AbstractSampling
 from core.memory import ReplayMemory
 
 
-class BaseSampling(AbstractSampling):
+class BaseSampling(AbstractSampling, Sequence):
     """
         Base implementation of Sampling. Creates different batches of
         predefined batch sizes as a generator function or normal
@@ -31,14 +32,14 @@ class BaseSampling(AbstractSampling):
         if item >= len(self):
             raise StopIteration
 
-        sample_idx = np.random.choice(range(len(self.replay_memory)), self.batch_size)
+        sample_idx = np.random.randint(0, len(self.replay_memory), self.batch_size)
         model_input, model_output = self.replay_memory.get_batch(sample_idx)
         return self.reformat_states(model_input), model_output
 
     def random_batch(self, batch_size: int=None):
         """  Returns a single random batch.  """
         batch_size = self.batch_size if batch_size is None else batch_size
-        sample_idx = np.random.choice(range(len(self.replay_memory)), batch_size)
+        sample_idx = np.random.randint(0, len(self.replay_memory), batch_size)
         model_input, model_output = self.replay_memory.get_batch(sample_idx)
         return self.reformat_states(model_input), model_output
 

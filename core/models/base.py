@@ -19,7 +19,7 @@ class BaseModel(AbstractModel):
         self.action_space = action_space
 
         self.back_up_count = 2
-        self.save_msg = "episode {:6,d} frames {:11,d} {:s}"
+        self.save_msg = "episode {:7,d} frames {:11,d} {:s}"
 
         self.model = self.create_model(input_shape, action_space)
         self.epsilon = epsilon
@@ -38,8 +38,13 @@ class BaseModel(AbstractModel):
                        filters=32, kernel_size=3, strides=2,
                        padding='same', kernel_initializer=init,
                        activation='relu'),
+                Conv2D(input_shape=input_shape, name='layer_conv3',
+                       filters=32, kernel_size=3, strides=2,
+                       padding='same', kernel_initializer=init,
+                       activation='relu'),
                 Flatten(),
-                Dense(name='layer_fc2', units=256, activation='relu'),
+                Dense(name='layer_fc1', units=1024, activation='relu'),
+                Dense(name='layer_fc2', units=512, activation='relu'),
                 Dense(name='layer_fc3', units=256, activation='relu'),
                 Dense(name='layer_fc_out', units=action_space, activation='linear')
             ]
@@ -60,30 +65,39 @@ class BaseModel(AbstractModel):
         actions_exploit = np.argmax(q_values, axis=1)
 
         if explore:
-            actions_exploit[explore] = actions_explore
+            actions_exploit[explore] = actions_explore[explore]
         return q_values, actions_exploit
 
     def train(self, sampling):
-        loss_history = []
-        for num, (x, y) in enumerate(sampling):
-            loss = self.model.fit(x, y, verbose=0).history['loss'][0]
-            loss_history.append(loss)
-            print("\r\tIteration {:4,d}, batch_loss: {:7,.4f}".format(num, loss), end='')
-        return loss_history
+        loss = self.model.fit_generator(sampling, verbose=0).history['loss'][0]
+        return loss
 
-    def save_model(self, save_dir, episode, frames):
+    def train_once(self, sampling):
+        x, y = sampling.random_batch()
+        history = self.model.fit(x, y, verbose=0)
+        loss = history.history['loss'][0]
+        return loss
+
+    def save_model(self, save_dir, episode, steps):
         self._check_create_directory(save_dir)
-        save_file = os.path.join(save_dir, self.save_msg.format(episode, frames, "weights.h5"))
+        save_file = os.path.join(save_dir, self.save_msg.format(episode, steps, "weights.h5"))
         self.model.save_weights(save_file)
 
-    def save_checkpoint(self, save_dir, episode, frames):
-        self.save_model(save_dir, episode, frames)
+    def save_checkpoint(self, save_dir, episode, steps):
+        self.save_model(save_dir, episode, steps)
         self._remove_old_files(pattern="*weights.h5", save_dir=save_dir, back_ups=self.back_up_count)
 
     def load_model(self, load_dir):
-        files = glob.glob(os.path.join(load_dir, "*weights.h5"))
-        newest_file = max(files, key=os.path.getctime)
-        self.model.load_weights(newest_file)
+        """ Automatically load the newest model it can find in a sub directory.  """
+        files = glob.glob(os.path.join(load_dir, "..", "*/*weights.h5"))
+        if files:
+            newest_file = max(files, key=os.path.getctime)
+            self.model.load_weights(newest_file)
+            print("Checkpoint found, continuing...")
+            return True
+        else:
+            print("No checkpoint found, reinitializing variables instead...")
+            return False
 
     def load_checkpoint(self, load_dir):
         self.load_model(load_dir)
