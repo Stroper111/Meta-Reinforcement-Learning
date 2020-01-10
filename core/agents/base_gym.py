@@ -12,7 +12,6 @@ from core.preprocessing import BasePreProcessingGym
 from collections import deque
 
 
-
 class BaseAgentGym:
     def __init__(self, setup):
         self.setup = setup
@@ -29,12 +28,13 @@ class BaseAgentGym:
 
         self.model = BaseModelGym(self.input_shape, self.action_space)
         # self.model.load_checkpoint(self.save_dir)
-        self.memory = [ReplayMemory(size=2_000, shape=self.input_shape, action_space=self.action_space)]
-        self.sampler = [BaseSamplingGym(self.memory[0], self.model, gamma=0.95, batch_size=32)]
+
+        self.memory = [ReplayMemory(size=10_000, shape=self.input_shape, action_space=self.action_space)]
+        self.sampler = [BaseSamplingGym(self.memory[0], self.model, gamma=0.95, batch_size=512)]
         self.loss = [deque([0], maxlen=100)]
 
-        kwargs = dict(episode_limit=1_000, episode_update=1)
-        self.scheduler = Scheduler(self.env, **kwargs)
+        scheduler_parameters = dict(episode_limit=1_000, episode_update=1)
+        self.scheduler = Scheduler(self.env, **scheduler_parameters)
 
         self.epsilon = 1
         self.epsilon_min = 0.01

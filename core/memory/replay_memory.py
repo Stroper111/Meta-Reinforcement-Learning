@@ -1,8 +1,6 @@
 
 import numpy as np
 
-from collections import namedtuple
-
 
 class ReplayMemory:
     """
