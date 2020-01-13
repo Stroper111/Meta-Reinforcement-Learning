@@ -3,6 +3,7 @@ import numpy as np
 import time
 import gym
 
+from core.agents import BaseAgent
 from core.tools import Scheduler
 from core.models import BaseModelGym
 from core.memory.base_replay_memory import ReplayMemory
@@ -12,16 +13,15 @@ from core.preprocessing import BasePreProcessingGym
 from collections import deque
 
 
-class BaseAgentGym:
+class BaseAgentGym(BaseAgent):
     def __init__(self, setup):
+        super().__init__(setup)
+
         self.setup = setup
         self.instances = sum(setup.values())
         self.env = self._create_env(setup)
 
-        games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
-        # self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
-        self.save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
-        self.save_dir = os.path.join(self.save_dir, "checkpoint", games, self.current_time())
+        self.save_dir = self.create_save_directory()
 
         self.processor = BasePreProcessingGym(self.env, save_dir=self.save_dir, history_size=5)
 
@@ -72,19 +72,5 @@ class BaseAgentGym:
         print("\nRun completed, models and logs are located here:\n", self.save_dir.replace("\\", "/"))
 
     def _create_env(self, setup):
-        game = self._validate_input(setup)
+        game = self.validate_input_gym(setup)
         return gym.make(game)
-
-    @staticmethod
-    def _validate_input(setup):
-        assert len(setup) == 1, "Only 1 gym environment supported currently."
-        valid = [env_spec.id for env_spec in gym.envs.registry.all()]
-        valid_keys = '\n\t'.join(valid)
-        for game, instance in setup.items():
-            assert game in valid, f"Use one of the valid keys:\n\t{valid_keys}"
-            assert isinstance(instance, int), "Please only use integers as key values."
-            return game
-
-    @staticmethod
-    def current_time():
-        return time.strftime('%Y-%b-%d-%a_%H.%M.%S')
