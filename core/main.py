@@ -8,10 +8,10 @@ sys.path.append(directory)
 from core import BaseAgent, BaseAgentGym
 
 
-def main():
-    controller = BaseAgent()
+def main(setup=None):
+    setup = dict(bigfish=10) if setup is None else setup
+    controller = BaseAgent(setup)
     controller.run()
-
 
 def main_gym():
     setup = {'CartPole-v1': 1}
@@ -20,4 +20,4 @@ def main_gym():
 
 
 if __name__ == '__main__':
-    main_gym()
+    main()
