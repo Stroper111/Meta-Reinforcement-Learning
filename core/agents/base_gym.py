@@ -19,7 +19,10 @@ class BaseAgentGym:
         self.env = self._create_env(setup)
 
         games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
-        self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
+        # self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
+        self.save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+        self.save_dir = os.path.join(self.save_dir, "checkpoint", games, self.current_time())
+
         self.processor = BasePreProcessingGym(self.env, save_dir=self.save_dir, history_size=5)
 
         self.env = self.processor.env
