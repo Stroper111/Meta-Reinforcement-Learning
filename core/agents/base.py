@@ -8,13 +8,13 @@ from copy import deepcopy
 from core.tools import MultiEnv, Scheduler
 from core.preprocessing import BasePreProcessing
 from core.models import BaseModel
-from core.memory.replay_memory import ReplayMemory
+from core.memory.base_replay_memory import ReplayMemory
 from core.memory.sampling import BaseSampling
 
 
 class BaseAgent:
-    def __init__(self):
-        self.setup = dict(bigfish=10)
+    def __init__(self, setup: dict):
+        self.setup = setup
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
@@ -32,7 +32,7 @@ class BaseAgent:
         self.samplers = self._create_samplers()
         self.loss = self._create_loss()
 
-        self.kwargs = dict(step_update=5_000)
+        self.kwargs = dict(time_update=10)
         self.scheduler = Scheduler(self.env, **self.kwargs)
 
         self.replay_factor = 0.1
@@ -69,17 +69,12 @@ class BaseAgent:
                 if self.memories[k].is_full():
                     self.memories[k].reset()
 
-                self.memories[k].add(state=images['rgb'][k], q_values=q_values[k], action=actions[k],
-                                     reward=rewards[k], end_episode=dones[k])
+                self.memories[k].add(state=images['rgb'][k], action=actions[k], reward=rewards[k], end_episode=dones[k])
 
             for k in range(self.instances):
-                if self.memories[k].pointer_ratio() >= self.replay_factor:
-                    self.memories[k].update()
-                    self.loss[k].append(self.model.train(sampling=self.samplers[k]))
-                    self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
-
-                    if k == (self.instances - 1):
-                        self.replay_factor = (self.replay_factor + 0.1) % 1.
+                if self.memories[k].pointer_ratio() >= self.samplers[k].batch_size:
+                    self.loss[k].append(self.model.train_once(sampling=self.samplers[k]))
+                    # self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
 
             if update:
                 loss_msg = ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss])
