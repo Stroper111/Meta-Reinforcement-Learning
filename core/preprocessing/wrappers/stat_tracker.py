@@ -1,3 +1,5 @@
+from abc import ABC
+
 import numpy as np
 import os
 
@@ -6,7 +8,7 @@ from collections import deque
 from core.preprocessing.wrappers import BaseWrapper
 
 
-class StatisticsUnique(BaseWrapper):
+class StatisticsUnique(BaseWrapper, ABC):
     """ Converter for MultiEnv generated images.  """
 
     def __init__(self, env, save_dir, history_size=30):
@@ -21,7 +23,8 @@ class StatisticsUnique(BaseWrapper):
         self._continuous = Continuous(self.instances, history_size)
         self._episodic = Episode(self.instances, self._continuous, self.save_paths)
 
-    def _save_paths(self, save_dir, setup):
+    @staticmethod
+    def _save_paths(save_dir, setup):
         files = []
         for game, instances in setup.items():
             for each in range(instances):
@@ -80,7 +83,7 @@ class Continuous:
 
 
 class Episode:
-    def __init__(self, instances, continuous,  save_paths):
+    def __init__(self, instances, continuous, save_paths):
         self.episode = np.zeros(instances, dtype=np.int)
         self.steps = np.zeros(instances, dtype=np.int)
         self.rewards = np.zeros(instances, dtype=np.float)

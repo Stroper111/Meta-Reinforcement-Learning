@@ -1,9 +1,9 @@
-
 import numpy as np
 
 from abc import ABC
 
 from core.memory import ReplayMemory
+
 
 class AbstractSampling(ABC):
     """
@@ -15,7 +15,8 @@ class AbstractSampling(ABC):
         batch-size: int
             The number of samples per batch.
     """
-    def __init__(self, replay_memory: ReplayMemory, batch_size: int=64):
+
+    def __init__(self, replay_memory: ReplayMemory, batch_size: int = 64):
         pass
 
     def __len__(self):

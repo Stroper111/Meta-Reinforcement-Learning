@@ -12,7 +12,6 @@ from core.preprocessing import BasePreProcessingGym
 from collections import deque
 
 
-
 class BaseAgentGym:
     def __init__(self, setup):
         self.setup = setup
@@ -48,7 +47,6 @@ class BaseAgentGym:
             # Remember all things are stuck in an array
             state, reward, done, info = env.step(action)
 
-
             self.memory.add(state=state['rgb'][0], action=action[0], reward=reward[0], end_episode=done[0])
 
             if steps > self.sampler.batch_size:
@@ -64,7 +62,7 @@ class BaseAgentGym:
 
             q_values, action = self.model.actions(state['rgb'])
 
-            if (np.random.rand() < self.epsilon):
+            if np.random.rand() < self.epsilon:
                 action = np.random.randint(0, self.action_space, (1,))
             self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
 

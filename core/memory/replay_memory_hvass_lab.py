@@ -1,4 +1,3 @@
-
 import numpy as np
 
 
@@ -23,7 +22,7 @@ class ReplayMemoryHvassLab:
     def __init__(self, size, shape, action_space, alpha=0.10, gamma=0.97, stackedframes=False):
         self.size = size
         self.shape = shape
-        self.alpha =  alpha
+        self.alpha = alpha
         self.gamma = gamma
 
         self.pointer = 0

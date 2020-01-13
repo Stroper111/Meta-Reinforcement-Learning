@@ -1,4 +1,3 @@
-
 from core.preprocessing import AbstractPreProcessing
 from core.preprocessing.wrappers import RGB2Gray, FrameStack, StatisticsUnique, GymWrapper
 

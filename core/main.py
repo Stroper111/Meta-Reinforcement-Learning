@@ -13,6 +13,7 @@ def main(setup=None):
     controller = BaseAgent(setup)
     controller.run()
 
+
 def main_gym():
     setup = {'CartPole-v1': 1}
     controller = BaseAgentGym(setup)

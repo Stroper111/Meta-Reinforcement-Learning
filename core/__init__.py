@@ -1,3 +1,9 @@
+import os, sys
+
+## Adding core directory, for terminal use
+directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(directory)
+
 import core.preprocessing.wrappers as wrappers
 
 from core.memory.base_replay_memory import ReplayMemory
@@ -6,7 +12,6 @@ from core.preprocessing import BasePreProcessing, BasePreProcessingGym, PreProce
 from core.agents import BaseAgent, BaseAgentGym
 from core.tools import MultiEnv
 from core.models import BaseModel, BaseModelGym
-
 
 __all__ = ['MultiEnv', 'ReplayMemory', 'wrappers',
            'BaseAgent', 'BaseAgentGym', 'BaseModel', 'BaseModelGym',

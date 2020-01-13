@@ -5,6 +5,7 @@ from core.preprocessing.wrappers import BaseWrapper
 
 class GymWrapper(BaseWrapper):
     """ Converter for gym to MultiEnv """
+
     def __init__(self, env):
         super().__init__(env)
         self.on_reset = False
@@ -29,7 +30,7 @@ class GymWrapper(BaseWrapper):
     def _on_reset(self):
         """ Procgen envs don't reset, they play on.  This creates the same effect.  """
         self.on_reset = False
-        return (self.reset(),  *self.reset_values,)
+        return (self.reset(), *self.reset_values,)
 
     def _reset_values(self, env):
         env.reset()

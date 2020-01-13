@@ -63,7 +63,7 @@ class MultiEnv:
         images = images['rgb']
 
         for venv, instances in zip(self.venv[1:], actions_per_env[1:]):
-            img, reward, done, info = venv.step(actions[action_processed:action_processed+instances])
+            img, reward, done, info = venv.step(actions[action_processed:action_processed + instances])
             images = np.vstack([images, img['rgb']])
             rewards = np.hstack([rewards, reward])
             dones = np.hstack([dones, done])
