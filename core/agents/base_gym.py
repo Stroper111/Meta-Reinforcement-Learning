@@ -6,7 +6,7 @@ import gym
 from core.agents import BaseAgent
 from core.tools import Scheduler
 from core.models import BaseModelGym
-from core.memory.base_replay_memory import ReplayMemory
+from core.memory.base_replay_memory import BaseReplayMemory
 from core.memory.sampling import BaseSamplingGym
 from core.preprocessing import BasePreProcessingGym
 
@@ -31,7 +31,7 @@ class BaseAgentGym(BaseAgent):
 
         self.model = BaseModelGym(self.input_shape, self.action_space)
         # self.model.load_checkpoint(self.save_dir)
-        self.memory = ReplayMemory(size=10_000, shape=self.input_shape, action_space=self.action_space)
+        self.memory = BaseReplayMemory(size=10_000, shape=self.input_shape, action_space=self.action_space)
         self.sampler = BaseSamplingGym(self.memory, self.model, gamma=0.95, batch_size=512)
         self.loss = deque([0], maxlen=100)
 

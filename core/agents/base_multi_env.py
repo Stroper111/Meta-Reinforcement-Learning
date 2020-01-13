@@ -9,7 +9,7 @@ from core.agents import BaseAgent
 from core.tools import MultiEnv, Scheduler
 from core.preprocessing import BasePreProcessing
 from core.models import BaseModel
-from core.memory.base_replay_memory import ReplayMemory
+from core.memory.base_replay_memory import BaseReplayMemory
 from core.memory.sampling import BaseSampling
 
 
@@ -43,8 +43,8 @@ class BaseAgentMultiEnv(BaseAgent):
     def _create_memories(self):
         memories = []
         for _ in range(self.instances):
-            memories.append(ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space,
-                                         stacked_frames=True))
+            memories.append(BaseReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space,
+                                             stacked_frames=True))
         return memories
 
     def _create_samplers(self):

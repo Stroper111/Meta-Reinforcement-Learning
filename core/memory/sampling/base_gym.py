@@ -3,7 +3,7 @@ import numpy as np
 from keras.utils import Sequence
 
 from .abstract import AbstractSampling
-from core.memory import ReplayMemory
+from core.memory import BaseReplayMemory
 
 
 class BaseSamplingGym(AbstractSampling, Sequence):
@@ -19,7 +19,7 @@ class BaseSamplingGym(AbstractSampling, Sequence):
             The size of one batch
     """
 
-    def __init__(self, replay_memory: ReplayMemory, model, gamma, batch_size: int = 64):
+    def __init__(self, replay_memory: BaseReplayMemory, model, gamma, batch_size: int = 64):
         super().__init__(replay_memory, batch_size)
         self.replay_memory = replay_memory
         self.batch_size = batch_size

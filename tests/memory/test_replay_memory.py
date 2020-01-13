@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from core.memory import ReplayMemory
+from core.memory import BaseReplayMemory
 
 
 class TestReplayMemory(unittest.TestCase):
@@ -11,8 +11,8 @@ class TestReplayMemory(unittest.TestCase):
         self.shape = (64, 64, 3)
         self.action_space = 5
 
-        self.memory = ReplayMemory(size=self.size, shape=self.shape, action_space=self.action_space,
-                                   stacked_frames=False)
+        self.memory = BaseReplayMemory(size=self.size, shape=self.shape, action_space=self.action_space,
+                                       stacked_frames=False)
 
     def test_steps(self):
         self._add_data(51)

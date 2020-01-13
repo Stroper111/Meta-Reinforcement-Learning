@@ -1,5 +1,11 @@
-from .base_replay_memory import ReplayMemory
 from .sampling.base import BaseSampling
 from .sampling.base_gym import BaseSamplingGym
 
-__all__ = ['ReplayMemory', 'BaseSampling', 'BaseSamplingGym']
+from .base_replay_memory import BaseReplayMemory
+
+from .replay_memory_hvass_lab import ReplayMemoryHvassLab
+
+
+
+__all__ = ['BaseReplayMemory', 'BaseSampling', 'BaseSamplingGym',
+           'ReplayMemoryHvassLab']

@@ -3,7 +3,7 @@ import numpy as np
 from collections import namedtuple
 
 
-class ReplayMemory:
+class BaseReplayMemory:
     """
         The replay-memory holds many previous states of the game-environment.
         This helps stabilize training of the Neural Network because the data
