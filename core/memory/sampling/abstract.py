@@ -2,8 +2,6 @@ import numpy as np
 
 from abc import ABC
 
-from core.memory import BaseReplayMemory
-
 
 class AbstractSampling(ABC):
     """
@@ -11,12 +9,12 @@ class AbstractSampling(ABC):
         This class is a generator to work with keras generator.
 
         replay_memory: ReplayMemory
-            This is used to extract samples from.
+            This is the memory from which samples are extracted.
         batch-size: int
             The number of samples per batch.
     """
 
-    def __init__(self, replay_memory: BaseReplayMemory, batch_size: int = 64):
+    def __init__(self, replay_memory, batch_size: int = 64):
         pass
 
     def __len__(self):

@@ -1,69 +1,45 @@
-import os
-import time
 import numpy as np
+import gym
 
 from collections import deque
 from copy import deepcopy
 
-from core.tools import MultiEnv, Scheduler
-from core.preprocessing import BasePreProcessing
-from core.models import HvassLab
-from core.memory.base_replay_memory import ReplayMemory
-from core.memory.sampling import BaseSampling
+from core.agents import BaseAgent
+from core.tools import Scheduler
+from core.preprocessing import BasePreProcessingGym
+from core.models import HvassLab as HvassLabModel
+from core.memory import ReplayMemoryHvassLab
+from core.memory.sampling import BaseSamplingGym
 
 
-class HvassLab:
+class HvassLabAgent(BaseAgent):
     def __init__(self, setup: dict):
+        super().__init__(setup)
+
         self.setup = setup
         self.instances = sum(self.setup.values())
+        self.env = self._create_env(setup)
 
-        games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
-        # self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
-        self.save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
-        self.save_dir = os.path.join(self.save_dir, "checkpoint", games, self.current_time())
-
+        self.save_dir = self.create_save_directory()
         self.processor = BasePreProcessingGym(self.env, save_dir=self.save_dir, history_size=5)
-
-        games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
-        # self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
-        self.save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
-        self.save_dir = os.path.join(self.save_dir, "checkpoint", games, self.current_time())
-
-        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=50)
 
         self.env = self.processor.env
         self.input_shape = self.processor.input_shape()
         self.action_space = self.processor.output_shape()
 
-        self.model = (self.input_shape, self.action_space)
+        self.model = HvassLabModel(self.input_shape, self.action_space)
         # self.model.load_checkpoint(self.save_dir)
-        self.memories = self._create_memories()
-        self.samplers = self._create_samplers()
-        self.loss = self._create_loss()
+
+        self.memory = ReplayMemoryHvassLab(size=50_000, shape=self.input_shape, action_space=self.action_space,
+                                           stackedframes=True)
+        self.samplers = BaseSamplingGym(replay_memory=self.memory, model=self.model, gamma=0.95, batch_size=128)
+        self.loss = deque([0], maxlen=100)
 
         self.kwargs = dict(time_update=10)
         self.scheduler = Scheduler(self.env, **self.kwargs)
 
+        # TODO add control signals
         self.replay_factor = 0.1
-
-    def _create_memories(self):
-        memories = []
-        for _ in range(self.instances):
-            memories.append(ReplayMemory(size=50_000, shape=self.input_shape, action_space=self.action_space,
-                                         stacked_frames=True))
-        return memories
-
-    def _create_samplers(self):
-        samplers = []
-        for k in range(self.instances):
-            samplers.append(BaseSampling(self.memories[k], batch_size=128))
-        return samplers
-
-    def _create_loss(self):
-        loss = []
-        for _ in range(self.instances):
-            loss.append(deque([0], maxlen=100))
-        return loss
 
     def run(self):
         images = self.scheduler.reset_images
@@ -71,22 +47,18 @@ class HvassLab:
 
         for env, update, episode, steps in self.scheduler:
             images, rewards, dones, infos = env.step(actions)
-            # Please always use deepcopy for this, since you use a lot of memory otherwise (you unpack all layzframes)
+            # Please always use deepcopy for this, due to memory usage, otherwise all layzframes are stored unpacked
             q_values, actions_new = self.model.actions(self.reformat_states(deepcopy(images)))
 
-            for k in range(self.instances):
-                if self.memories[k].is_full():
-                    self.memories[k].refill_memory()
+            if self.memory.is_full():
+                self.memory.refill_memory()
 
-                self.memories[k].add(state=images['rgb'][k], action=actions[k], reward=rewards[k], end_episode=dones[k])
-
-            for k in range(self.instances):
-                if self.memories[k].pointer_ratio() >= self.samplers[k].batch_size:
-                    self.loss[k].append(self.model.train_once(sampling=self.samplers[k]))
-                    # self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
+            self.memory.add(state=images['rgb'][0], q_values=q_values, action=actions[0],
+                            reward=rewards[0], end_episode=dones[0])
 
             if update:
-                loss_msg = ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss])
+                self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
+                loss_msg = '{:15,.4f}'.format(np.mean(self.loss))
                 print('\r\tloss (average)'.ljust(18), loss_msg)
 
             actions = actions_new
@@ -94,8 +66,8 @@ class HvassLab:
     @staticmethod
     def reformat_states(states):
         """  Transforms the input of stacked frame to the required format for the model.  """
-        return np.array(states['rgb']).transpose([0, 2, 3, 1])
+        return np.array(states['rgb'])
 
-    @staticmethod
-    def current_time():
-        return time.strftime('%Y-%b-%d-%a_%H.%M.%S')
+    def _create_env(self, setup):
+        self.validate_game_input(setup, gym_env=True)
+        return gym.make(list(setup.keys())[0])

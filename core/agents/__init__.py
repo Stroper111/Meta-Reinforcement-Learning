@@ -12,7 +12,7 @@ from .abstract import AbstractAgent
 from .base import BaseAgent
 from .base_multi_env import BaseAgentMultiEnv
 from .base_gym import BaseAgentGym
-from .hvass_lab import HvassLab
+from .hvass_lab import HvassLabAgent
 
 __all__ = ['AbstractAgent', 'BaseAgent', 'BaseAgentMultiEnv', 'BaseAgentGym',
-           'HvassLab']
+           'HvassLabAgent']

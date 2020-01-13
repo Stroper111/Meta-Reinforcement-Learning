@@ -9,16 +9,13 @@ from core.models import BaseModel
 
 
 class HvassLab(BaseModel):
-    def __init__(self, input_shape, action_space, epsilon=0.05):
-        super().__init__(input_shape, action_space, epsilon)
-
     @staticmethod
     def create_model(input_shape, output_shape):
         init = TruncatedNormal(mean=0, stddev=2e-2)
 
         model = Sequential(
             [
-                Conv2D(input_shape=output_shape, name='layer_conv1',
+                Conv2D(input_shape=input_shape, name='layer_conv1',
                        filters=16, kernel_size=3, strides=2,
                        padding='same', kernel_initializer=init,
                        activation='relu'),
@@ -48,7 +45,7 @@ class HvassLab(BaseModel):
                       kernel_initializer=init, activation='relu'),
 
                 # Linear is important for Q-values!
-                Dense(name='layer_fc_out', units=input_shape,
+                Dense(name='layer_fc_out', units=output_shape,
                       kernel_initializer=init, activation='linear')
             ]
         )

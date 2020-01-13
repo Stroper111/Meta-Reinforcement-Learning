@@ -6,7 +6,7 @@ directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(directory)
 
 from core import BaseAgentMultiEnv, BaseAgentGym
-from core.agents import HvassLab
+from core.agents import HvassLabAgent
 
 
 def main(setup=None):
@@ -26,10 +26,10 @@ def main_gym():
 def main_hvass_lab():
     """ Manually created, currently only for 1 single gym environment.  """
     setup = {'Breakout-v0': 1}
-    controller = HvassLab(setup)
+    controller = HvassLabAgent(setup)
     return controller
 
 
 if __name__ == '__main__':
-    controller = main()
+    controller = main_hvass_lab()
     controller.run()

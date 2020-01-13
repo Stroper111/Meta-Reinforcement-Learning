@@ -22,19 +22,16 @@ class BaseAgent(AbstractAgent):
         return save_dir
 
     @staticmethod
-    def validate_input_gym(setup):
-        assert len(setup) == 1, "Only 1 gym environment supported currently."
-        valid = [env_spec.id for env_spec in gym.envs.registry.all()]
-        valid_keys = '\n\t'.join(valid)
-        for game, instance in setup.items():
-            assert game in valid, f"Use one of the valid keys:\n\t{valid_keys}"
-            assert isinstance(instance, int), "Please only use integers as key values."
+    def validate_game_input(setup, gym_env=False):
+        if gym_env:
+            valid_games = [env_spec.id for env_spec in gym.envs.registry.all()]
+            assert len(setup) == 1, "Only 1 gym environment supported currently."
+        else:
+            valid_games = procgen.env.ENV_NAMES
 
-    @staticmethod
-    def validate_input_procgen(setup):
-        valid_games = procgen.env.ENV_NAMES
+        valid_keys = '\n\t'.join(valid_games)
         for game, instance in setup.items():
-            assert game in valid_games, f"Use one of the valid keys: {valid_games}"
+            assert game in valid_games, f"Use one of the valid keys:\n\t{valid_keys}"
             assert isinstance(instance, int), "Please only use integers as key values."
 
     @staticmethod

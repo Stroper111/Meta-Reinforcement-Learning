@@ -3,7 +3,6 @@ import numpy as np
 from keras.utils import Sequence
 
 from .abstract import AbstractSampling
-from core.memory import BaseReplayMemory
 
 
 class BaseSamplingGym(AbstractSampling, Sequence):
@@ -15,11 +14,21 @@ class BaseSamplingGym(AbstractSampling, Sequence):
         This Sampling is meant to work together with the frame stacking
         hence there is a conversion before returning the values.
 
+        replay_memory
+            This is the memory from which the samples are extracted it should
+            be compatible with Keras.Sequence.
+
+        model: Keras
+            This should be a Keras model that is used to make predictions with.
+
+        gamma: float
+            Discount factor for the reinforcement learning update rule.
+
         batch_size: int
             The size of one batch
     """
 
-    def __init__(self, replay_memory: BaseReplayMemory, model, gamma, batch_size: int = 64):
+    def __init__(self, replay_memory, model, gamma, batch_size: int = 64):
         super().__init__(replay_memory, batch_size)
         self.replay_memory = replay_memory
         self.batch_size = batch_size

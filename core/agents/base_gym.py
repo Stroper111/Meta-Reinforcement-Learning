@@ -70,5 +70,5 @@ class BaseAgentGym(BaseAgent):
         print("\nRun completed, models and logs are located here:\n", self.save_dir.replace("\\", "/"))
 
     def _create_env(self, setup):
-        game = self.validate_input_gym(setup)
+        game = self.validate_game_input(setup, gym_env=True)
         return gym.make(game)
