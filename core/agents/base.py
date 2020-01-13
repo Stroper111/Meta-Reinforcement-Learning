@@ -67,7 +67,7 @@ class BaseAgent:
 
             for k in range(self.instances):
                 if self.memories[k].is_full():
-                    self.memories[k].reset()
+                    self.memories[k].refill_memory()
 
                 self.memories[k].add(state=images['rgb'][k], action=actions[k], reward=rewards[k], end_episode=dones[k])
 
