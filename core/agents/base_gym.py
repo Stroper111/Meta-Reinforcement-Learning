@@ -56,6 +56,9 @@ class BaseAgentGym(BaseAgent):
             if self.memory.is_full():
                 self.memory.refill_memory()
 
+            if self.memory.pointer > self.sampler.batch_size:
+                self.loss.append(self.model.train_once(self.sampler))
+
             if update:
                 self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
                 loss_msg = '{:15,.4f}'.format(np.mean(self.loss))

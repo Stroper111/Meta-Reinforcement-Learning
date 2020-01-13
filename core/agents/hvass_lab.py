@@ -32,8 +32,6 @@ class HvassLabAgent(BaseAgent):
 
         self.memory = ReplayMemoryHvassLab(size=50_000, shape=self.input_shape, action_space=self.action_space,
                                            stackedframes=True)
-        self.samplers = BaseSamplingGym(replay_memory=self.memory, model=self.model, gamma=0.95, batch_size=128)
-        self.loss = deque([0], maxlen=100)
 
         self.kwargs = dict(time_update=10)
         self.scheduler = Scheduler(self.env, **self.kwargs)
@@ -56,10 +54,11 @@ class HvassLabAgent(BaseAgent):
             self.memory.add(state=images['rgb'][0], q_values=q_values, action=actions[0],
                             reward=rewards[0], end_episode=dones[0])
 
+            # TODO add updatin rules for HvassLab, this should be added in HvassLabModel.
+
             if update:
                 self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
-                loss_msg = '{:15,.4f}'.format(np.mean(self.loss))
-                print('\r\tloss (average)'.ljust(18), loss_msg)
+
 
             actions = actions_new
 

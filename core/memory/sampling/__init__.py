@@ -1,4 +1,4 @@
-from .base import BaseSampling
+from .base_multi_env import BaseSamplingMultiEnv
 from .base_gym import BaseSamplingGym
 
-__all__ = ['BaseSampling', 'BaseSamplingGym']
+__all__ = ['BaseSamplingMultiEnv', 'BaseSamplingGym']

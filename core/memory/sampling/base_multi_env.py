@@ -6,7 +6,7 @@ from keras.utils import Sequence
 from .abstract import AbstractSampling
 
 
-class BaseSampling(AbstractSampling, Sequence):
+class BaseSamplingMultiEnv(AbstractSampling, Sequence):
     """
         Base implementation of Sampling. Creates different batches of
         predefined batch sizes as a generator function or normal
