@@ -4,3 +4,7 @@
 # Ignore temp model storage for testing.
 ./tests/model/temp*
 
+# Ignore checkpoints
+checkpoint*
+
+*__pycache__*

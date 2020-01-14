@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Union, Any
 
 from keras import Sequential, Input
-from core.memory import BaseSampling
+from core.memory import BaseSamplingMultiEnv
 
 
 class AbstractModel(ABC):
@@ -44,7 +44,7 @@ class AbstractModel(ABC):
         pass
 
     @abstractmethod
-    def train(self, sampling: BaseSampling):
+    def train(self, sampling: BaseSamplingMultiEnv):
         """ Trains a model on the sampling.  """
         pass
 

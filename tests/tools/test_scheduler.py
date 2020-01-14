@@ -6,6 +6,7 @@ import numpy as np
 
 from core import MultiEnv
 from core.tools import Scheduler
+from core.preprocessing.wrappers import StatisticsUnique
 
 
 class TestMultiEnv(unittest.TestCase):
@@ -27,7 +28,7 @@ class TestMultiEnv(unittest.TestCase):
         self.setup = dict(coinrun=2, bigfish=2, chaser=2)
         self.instances = sum(self.setup.values())
 
-        self.env = MultiEnv(self.setup)
+        self.env = StatisticsUnique(MultiEnv(self.setup), self.full_path_directory)
 
     def test_setup(self):
         kwargs = dict()

@@ -1,4 +1,3 @@
-
 import gym
 import numpy as np
 
@@ -10,6 +9,7 @@ class BaseWrapper:
     """
         Wrapper for processing environment images from the MultiEnv
     """
+
     def __init__(self, env: Union[MultiEnv, gym.Env]):
         self.env = env
 

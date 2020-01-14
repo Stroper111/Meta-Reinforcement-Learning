@@ -3,7 +3,7 @@ import unittest
 
 from unittest.mock import Mock
 
-from core.memory import BaseSampling
+from core.memory import BaseSamplingMultiEnv
 
 
 class TestSampling(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestSampling(unittest.TestCase):
         self.replay_memory.__len__ = Mock(return_value=self.memory_size)
         self.replay_memory.get_batch.return_value = self._get_batch(np.random.rand(self.batch_size))
 
-        self.sampling = BaseSampling(replay_memory=self.replay_memory, batch_size=self.batch_size)
+        self.sampling = BaseSamplingMultiEnv(replay_memory=self.replay_memory, batch_size=self.batch_size)
 
     def test_generator(self):
         """  Test if there are exactly the correct number of batches to reproduce the whole memory.  """

@@ -1,9 +1,7 @@
-
 import gym
 import time
 
 from procgen.env import ENV_NAMES
-
 
 if __name__ == '__main__':
     FPS = 60
@@ -15,4 +13,4 @@ if __name__ == '__main__':
         while not done:
             _, _, done, _ = env.step(env.action_space.sample())
             env.render()
-            time.sleep(1/FPS)
+            time.sleep(1 / FPS)

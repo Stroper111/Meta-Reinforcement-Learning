@@ -11,13 +11,14 @@ class Scheduler:
     """
 
     def __init__(self, env, episode_limit=np.uint(-1), step_limit=np.uint(-1), time_limit=np.uint(-1),
-                 episode_update=np.uint(-1), step_update=np.uint(-1), time_update=np.uint(-1)):
+                 episode_update=np.uint(-1), step_update=np.uint(-1), time_update=np.uint(-1), save_dir=None):
 
         self.env = env
         self.added_temp = False
         if not hasattr(self.env, 'scheduler'):
             self.added_temp = True
-            self.env = StatisticsUnique(self.env, save_dir="temp_statistics")
+            assert save_dir is not None, "The Statistic Wrapper wasn't used, require a save directory."
+            self.env = StatisticsUnique(self.env, save_dir=save_dir)
 
         if episode_update >= episode_limit:
             episode_update = episode_limit
