@@ -33,7 +33,7 @@ class BaseAgentGym(BaseAgent):
         self.sampler = BaseSamplingGym(self.memory, self.model, gamma=0.95, batch_size=512)
         self.loss = deque([0], maxlen=100)
 
-        kwargs = dict(episode_limit=1_000, step_update=100)
+        kwargs = dict(episode_limit=1_000, time_update=5)
         self.scheduler = Scheduler(self.env, **kwargs)
 
 
@@ -74,5 +74,6 @@ class BaseAgentGym(BaseAgent):
         print("\nRun completed, models and logs are located here:\n", self.save_dir.replace("\\", "/"))
 
     def _create_env(self, setup):
-        game = self.validate_game_input(setup, gym_env=True)
-        return gym.make(game)
+        self.validate_game_input(setup, gym_env=True)
+        for game, instances in setup.items():
+            return gym.make(game)
