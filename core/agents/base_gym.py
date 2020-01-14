@@ -36,7 +36,6 @@ class BaseAgentGym(BaseAgent):
         kwargs = dict(episode_limit=1_000, time_update=5)
         self.scheduler = Scheduler(self.env, **kwargs)
 
-
         self.epsilon = 1
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
@@ -67,6 +66,7 @@ class BaseAgentGym(BaseAgent):
 
             q_values, action = self.model.actions(state['rgb'])
 
+            # Handle exploration
             if np.random.rand() < self.epsilon:
                 action = np.random.randint(0, self.action_space, (1,))
             self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
