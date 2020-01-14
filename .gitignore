@@ -6,3 +6,5 @@
 
 # Ignore checkpoints
 checkpoint*
+
+*__pycache__*
