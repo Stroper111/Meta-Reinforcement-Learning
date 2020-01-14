@@ -33,9 +33,8 @@ class BaseAgentGym(BaseAgent):
         self.sampler = BaseSamplingGym(self.memory, self.model, gamma=0.95, batch_size=512)
         self.loss = deque([0], maxlen=100)
 
-        kwargs = dict(episode_limit=1_000, step_update=100)
+        kwargs = dict(episode_limit=1_000, time_update=5)
         self.scheduler = Scheduler(self.env, **kwargs)
-
 
         self.epsilon = 1
         self.epsilon_min = 0.01
@@ -49,17 +48,18 @@ class BaseAgentGym(BaseAgent):
             # Remember all things are stuck in an array
             state, reward, done, info = env.step(action)
 
+            # Add new entry to the memory
             self.memory.add(state=state['rgb'][0], action=action[0], reward=reward[0], end_episode=done[0])
 
-            if steps > self.sampler.batch_size:
-                self.loss.append(self.model.train_once(sampling=self.sampler))
-
+             # Refill memory when full
             if self.memory.is_full():
                 self.memory.refill_memory()
 
+            # Learn new steps
             if self.memory.pointer > self.sampler.batch_size:
                 self.loss.append(self.model.train_once(self.sampler))
 
+            # Print loss information on update
             if update:
                 self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
                 loss_msg = '{:15,.4f}'.format(np.mean(self.loss))
@@ -67,6 +67,7 @@ class BaseAgentGym(BaseAgent):
 
             q_values, action = self.model.actions(state['rgb'])
 
+            # Handle exploration
             if np.random.rand() < self.epsilon:
                 action = np.random.randint(0, self.action_space, (1,))
             self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
@@ -74,5 +75,6 @@ class BaseAgentGym(BaseAgent):
         print("\nRun completed, models and logs are located here:\n", self.save_dir.replace("\\", "/"))
 
     def _create_env(self, setup):
-        game = self.validate_game_input(setup, gym_env=True)
-        return gym.make(game)
+        self.validate_game_input(setup, gym_env=True)
+        for game, instances in setup.items():
+            return gym.make(game)
