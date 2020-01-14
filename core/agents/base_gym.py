@@ -36,6 +36,7 @@ class BaseAgentGym(BaseAgent):
         kwargs = dict(episode_limit=1_000, step_update=100)
         self.scheduler = Scheduler(self.env, **kwargs)
 
+
         self.epsilon = 1
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
