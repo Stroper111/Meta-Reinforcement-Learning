@@ -11,7 +11,7 @@ from core.agents import HvassLabAgent
 
 def main(setup=None):
     """ MultiEnv, only accepts procgen environments, can be multiple.  """
-    setup = dict(bigfish=10) if setup is None else setup
+    setup = dict(bigfish=9) if setup is None else setup
     controller = BaseAgentMultiEnv(setup)
     return controller
 
@@ -31,5 +31,5 @@ def main_hvass_lab():
 
 
 if __name__ == '__main__':
-    controller = main_hvass_lab()
+    controller = main()
     controller.run()
