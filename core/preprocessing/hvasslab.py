@@ -46,10 +46,10 @@ class PreProcessingHvasslab(AbstractPreProcessing):
             self.env = StatisticsUnique(self.env, history_size=history_size, save_dir=save_dir)
 
     def input_shape(self):
-        shape = (self.instances, 210, 160, 3)
+        shape = (210, 160, 3)
         if self.rescaling_dim is not None:
-            instances, x, y, z = shape
-            shape = (instances, *self.rescaling_dim, 1)
+            x, y, z = shape
+            shape = (*self.rescaling_dim, 1)
 
         if self.motion_tracer:
             shape = (*shape[:-1], 2)
