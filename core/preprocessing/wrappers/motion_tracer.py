@@ -38,13 +38,13 @@ class MotionTracer(BaseWrapper):
         if not self.setup:
             self._setup(img)
 
-        self.last_input[:] = img[:]
 
         # Calculate difference
         img_dif = img - self.last_input
+        self.last_input[:] = img[:]
 
         # Execute a threshold
-        img_motion = np.where(np.abs(img_dif) > 20, 255.0, 0.0)
+        img_motion = np.where(np.abs(img_dif) > 20, 255., 0)
 
         # Calculate motion trace
         output = img_motion + self.decay * self.last_output
@@ -60,9 +60,10 @@ class MotionTracer(BaseWrapper):
     def _setup(self, img):
         """ For new games setup the correct motion trace.  """
         self.last_input = img.astype(np.float)
-        self.last_output = np.zeros_like(img)
+        self.last_output = np.zeros_like(self.last_input)
+        self.setup = True
 
-    def _get_image(self):
+    def _image(self):
         """ Return neural network input.  """
 
         # Stack the last input and output images.
