@@ -6,7 +6,7 @@ import os
 
 from PIL import Image
 
-from core.preprocessing.wrappers.rescaling_gray import Rescaling
+from core.preprocessing.wrappers.rescaling_gray import RescalingGray
 
 
 class TestRescaling(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestRescaling(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.setup = dict(coinrun=12)
         cls.new_shape = (200, 40)
-        cls.wrapper = Rescaling(cls.setup, new_shape=cls.new_shape)
+        cls.wrapper = RescalingGray(cls.setup, new_shape=cls.new_shape)
 
         current_directory = os.path.dirname(os.path.abspath(__file__))
 

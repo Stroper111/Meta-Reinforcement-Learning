@@ -4,9 +4,9 @@ import PIL.Image
 from core.preprocessing.wrappers import BaseWrapper
 
 
-class Rescaling(BaseWrapper):
+class RescalingGray(BaseWrapper):
     """
-        Converts an image from 2D to a new dimension
+        Converts a Grayscale image to a new dimension
 
         setup: dict
             The games as key and the instances as values , required for some wrappers.
@@ -17,7 +17,7 @@ class Rescaling(BaseWrapper):
 
     def __init__(self, setup, new_shape):
         super().__init__(setup)
-        assert 2 >= len(new_shape) >= 2, "Only 2D rescaling is supported at this time."
+        assert len(new_shape) == 2, "Only 2D images are supported at this time. (use np.squeeze)"
 
         # Size of each image in the state. Reversed order used by PIL.Image.
         x, y, *z = new_shape
