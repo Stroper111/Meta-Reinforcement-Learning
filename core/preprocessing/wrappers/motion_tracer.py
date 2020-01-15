@@ -41,6 +41,7 @@ class MotionTracer(BaseWrapper):
 
         # Calculate difference
         img_dif = images - self.last_input
+
         self.last_input[:] = images[:]
 
         # Execute a threshold
@@ -54,6 +55,7 @@ class MotionTracer(BaseWrapper):
 
         # Store output value
         self.last_output = output
+
         return self._image()
 
     def _setup(self, images):
