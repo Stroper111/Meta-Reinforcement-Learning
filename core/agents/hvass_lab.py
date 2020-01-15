@@ -6,7 +6,7 @@ from copy import deepcopy
 
 from core.agents import BaseAgent
 from core.tools import Scheduler
-from core.preprocessing import BasePreProcessingGym
+from core.preprocessing import PreProcessingHvasslab
 from core.models import HvassLab as HvassLabModel
 from core.memory import ReplayMemoryHvassLab
 from core.memory.sampling import BaseSamplingGym
@@ -21,7 +21,9 @@ class HvassLabAgent(BaseAgent):
         self.env = self._create_env(setup)
 
         self.save_dir = self.create_save_directory()
-        self.processor = BasePreProcessingGym(self.env, save_dir=self.save_dir, history_size=5)
+
+        kwargs = dict(gym=True, rescaling_dim=(105, 80), motion_tracer=True, save_dir=self.save_dir, history_size=20)
+        self.processor = PreProcessingHvasslab(self.env, **kwargs)
 
         self.env = self.processor.env
         self.input_shape = self.processor.input_shape()
@@ -33,8 +35,8 @@ class HvassLabAgent(BaseAgent):
         self.memory = ReplayMemoryHvassLab(size=50_000, shape=self.input_shape, action_space=self.action_space,
                                            stackedframes=True)
 
-        self.kwargs = dict(time_update=10)
-        self.scheduler = Scheduler(self.env, **self.kwargs)
+        kwargs = dict(time_update=10)
+        self.scheduler = Scheduler(self.env, **kwargs)
 
         # TODO add control signals
         self.replay_factor = 0.1

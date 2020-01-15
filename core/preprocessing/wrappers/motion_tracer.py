@@ -19,12 +19,12 @@ class MotionTracer(BaseWrapper):
         super().__init__(env)
 
         # Size of each image in the state. Reversed order used by PIL.Image.
-        self.setup = False
-        self.decay = decay
+        self._setup = False
+        self._decay = decay
 
-        self.last_input = np.ndarray
-        self.last_output = np.ndarray
-        self.dimensions = int
+        self._last_input = np.ndarray
+        self._last_output = np.ndarray
+        self._dimensions = int
 
     def step(self, action):
         img, *args = self.env.step(action)
@@ -32,45 +32,45 @@ class MotionTracer(BaseWrapper):
         return (dict(rgb=img), *args)
 
     def reset(self):
-        self.setup = False
+        self._setup = False
         return dict(rgb=self.process(self.env.reset()['rgb']))
 
     def process(self, images: np.array):
-        if not self.setup:
-            self._setup(images)
+        if not self._setup:
+            self._run_setup(images)
 
         # Calculate difference
-        img_dif = images - self.last_input
+        img_dif = images - self._last_input
 
-        self.last_input[:] = images[:]
+        self._last_input[:] = images[:]
 
         # Execute a threshold
         img_motion = np.where(np.abs(img_dif) > 20, 255., 0)
 
         # Calculate motion trace
-        output = img_motion + self.decay * self.last_output
+        output = img_motion + self._decay * self._last_output
 
         # Clip input to valid values
         output = np.clip(output, 0.0, 255.0)
 
         # Store output value
-        self.last_output = output
+        self._last_output = output
 
         return self._image()
 
-    def _setup(self, images):
+    def _run_setup(self, images):
         """ For new games setup the correct motion trace.  """
-        self.last_input = images.astype(np.float)
-        self.last_output = np.zeros_like(images)
-        self.dimensions = np.arange(0, len(self.last_input.shape) + 1)
-        self.setup = True
+        self._last_input = images.astype(np.float)
+        self._last_output = np.zeros_like(images)
+        self._dimensions = np.arange(0, len(self._last_input.shape) + 1)
+        self._setup = True
 
     def _image(self):
         """ Return neural network input.  """
 
         # Stack the last input and output images.
-        state = np.stack([self.last_input, self.last_output])
-        state = np.transpose(state, axes=(*self.dimensions[1:], 0))
+        state = np.stack([self._last_input, self._last_output])
+        state = np.transpose(state, axes=(*self._dimensions[1:], 0))
 
         # Convert to 8-bit integer.
         # This is done to save space in the replay-memory.

@@ -21,8 +21,8 @@ class RescalingGray(BaseWrapper):
 
         # Size of each image in the state. Reversed order used by PIL.Image.
         x, y, *z = new_shape
-        self.new_shape = (y, x, *z)
-        self.new_image = np.zeros((sum(env.setup.values()), *new_shape))
+        self._new_shape = (y, x, *z)
+        self._new_image = np.zeros((sum(env.setup.values()), *new_shape))
 
     def step(self, action):
         img, *args = self.env.step(action)
@@ -38,7 +38,7 @@ class RescalingGray(BaseWrapper):
             img = PIL.Image.fromarray(img)
 
             # Resize the image.
-            img_resized = img.resize(size=self.new_shape,
+            img_resized = img.resize(size=self._new_shape,
                                      resample=PIL.Image.LINEAR)
-            self.new_image[idx] = img_resized
-        return self.new_image
+            self._new_image[idx] = img_resized
+        return self._new_image

@@ -1,6 +1,6 @@
 
 from core.preprocessing.abstract import AbstractPreProcessing
-from core.preprocessing.wrappers import GymWrapper, RGB2Gray, RescalingGray, MotionTracer
+from core.preprocessing.wrappers import *
 
 from core.tools import MultiEnv
 
@@ -19,8 +19,10 @@ class PreProcessingHvasslab(AbstractPreProcessing):
             Indicator if the motion tracer wrapper has to be applied.
         """
 
-    def __init__(self, env, gym=False, rescaling_dim=None, motion_tracer=True):
+    def __init__(self, env, gym=False, rescaling_dim=None, motion_tracer=True,
+                 statistics=True, history_size=30, save_dir=None):
         super().__init__(env)
+
         self.env = env
         self.instances = 1
         self.gym = gym
@@ -28,16 +30,20 @@ class PreProcessingHvasslab(AbstractPreProcessing):
         self.motion_tracer = True
 
         if gym:
-            self.env = GymWrapper(env)
+            self.env = GymWrapper(self.env)
         else:
             self.instances = sum(self.env.setup.values())
 
         if rescaling_dim is not None:
-            self.env = RGB2Gray(env)
-            self.env = RescalingGray(env, rescaling_dim)
+            self.env = RGB2Gray(self.env)
+            self.env = RescalingGray(self.env, rescaling_dim)
 
         if motion_tracer:
-            self.env = MotionTracer(env)
+            self.env = MotionTracer(self.env)
+
+        if statistics:
+            assert save_dir is not None, "Need a saving directory for statistics."
+            self.env = StatisticsUnique(self.env, history_size=history_size, save_dir=save_dir)
 
     def input_shape(self):
         shape = (self.instances, 210, 160, 3)

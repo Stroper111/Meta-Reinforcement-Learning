@@ -30,7 +30,7 @@ class TestMotionTracer(unittest.TestCase):
         for img in self._rgb2_gray(self.images):
             motion_trace = self.wrapper.process(img)
             motion_traced.append(motion_trace)
-            self.wrapper._setup(img)
+            self.wrapper._run_setup(img)
         motion_traced = np.array(motion_traced)
 
         self.assertEqual((12, 64, 64, 2), motion_traced.shape)

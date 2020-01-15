@@ -47,10 +47,10 @@ class TestStatistics(unittest.TestCase):
     def test_update_statistics(self):
         self.wrapper._step_update(rewards=self._fake_reward(), dones=self._fake_dones())
 
-        for _ in range(1, self.wrapper.continuous_history_size + 1):
+        for _ in range(1, self.wrapper._continuous_history_size + 1):
             self.wrapper._step_update(rewards=self._fake_reward(), dones=self._fake_dones())
         stats = self.wrapper.summary(stats=['mean'])
-        total_steps = (self.wrapper.continuous_history_size + 1) * self.env.instances
+        total_steps = (self.wrapper._continuous_history_size + 1) * self.env.instances
 
         self.assertEqual(True, np.array_equal([3, 1, 1, 0], stats['episode']), "Wrong episode numbers")
         self.assertEqual(True, np.array_equal([0, 11, 2, 93], stats['rewards']), "Wrong reward numbers")

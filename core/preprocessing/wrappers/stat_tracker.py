@@ -17,14 +17,14 @@ class StatisticsUnique(BaseWrapper, ABC):
         self.setup = env.setup
         self.instances = env.instances
 
-        self.continuous_history_size = history_size
-        self.save_paths = self._save_paths(save_dir, self.setup)
+        self._continuous_history_size = history_size
+        self._save_paths = self._create_save_paths(save_dir, self.setup)
 
         self._continuous = Continuous(self.instances, history_size)
-        self._episodic = Episode(self.instances, self._continuous, self.save_paths)
+        self._episodic = Episode(self.instances, self._continuous, self._save_paths)
 
     @staticmethod
-    def _save_paths(save_dir, setup):
+    def _create_save_paths(save_dir, setup):
         files = []
         for game, instances in setup.items():
             for each in range(instances):
