@@ -96,13 +96,14 @@ class HvassLab(BaseModel):
             loss_history.append(loss)
             loss_mean = sum(loss_history) / len(loss_history)
 
-            percentage_epoch = iteration / iterations_per_epoch
-            msg = "\r\tIteration: {iteration} ({pct:.2f} epoch), Batch loss: {loss:.4f}, Mean loss: {mean_loss:.4f}"
-            sys.stdout.write(msg.format(iteration=iteration, pct=percentage_epoch, loss=loss, mean_loss=loss_mean))
-            sys.stdout.flush()
-
+            # TODO put this back after server
             if iteration > iterations_min and loss_mean < loss_limit:
+                percentage_epoch = iteration / iterations_per_epoch
+                msg = "\r\tIteration: {iteration} ({pct:.2f} epoch), Batch loss: {loss:.4f}, Mean loss: {mean_loss:.4f}"
+                sys.stdout.write(msg.format(iteration=iteration, pct=percentage_epoch, loss=loss, mean_loss=loss_mean))
+                sys.stdout.flush()
                 break
+
         print("\n")
 
     def change_learning_rate(self, learning_rate):
