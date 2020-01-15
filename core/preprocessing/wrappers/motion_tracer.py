@@ -22,8 +22,9 @@ class MotionTracer(BaseWrapper):
         self.setup = False
         self.decay = decay
 
-        self.last_input = None
-        self.last_output = None
+        self.last_input = np.ndarray
+        self.last_output = np.ndarray
+        self.dimensions = int
 
     def step(self, action):
         img, *args = self.env.step(action)
@@ -34,14 +35,13 @@ class MotionTracer(BaseWrapper):
         self.setup = False
         return dict(rgb=self.process(self.env.reset()['rgb']))
 
-    def process(self, img: np.array):
+    def process(self, images: np.array):
         if not self.setup:
-            self._setup(img)
-
+            self._setup(images)
 
         # Calculate difference
-        img_dif = img - self.last_input
-        self.last_input[:] = img[:]
+        img_dif = images - self.last_input
+        self.last_input[:] = images[:]
 
         # Execute a threshold
         img_motion = np.where(np.abs(img_dif) > 20, 255., 0)
@@ -54,20 +54,22 @@ class MotionTracer(BaseWrapper):
 
         # Store output value
         self.last_output = output
-
         return self._image()
 
-    def _setup(self, img):
+    def _setup(self, images):
         """ For new games setup the correct motion trace.  """
-        self.last_input = img.astype(np.float)
-        self.last_output = np.zeros_like(self.last_input)
+        self.last_input = images.astype(np.float)
+        self.last_output = np.zeros_like(images)
+        self.dimensions = np.arange(0, len(self.last_input.shape) + 1)
         self.setup = True
 
     def _image(self):
         """ Return neural network input.  """
 
         # Stack the last input and output images.
-        state = np.dstack([self.last_input, self.last_output])
+        state = np.stack([self.last_input, self.last_output])
+        print(state.shape, *self.dimensions[1:])
+        state = np.transpose(state, axes=(*self.dimensions[1:], 0))
 
         # Convert to 8-bit integer.
         # This is done to save space in the replay-memory.

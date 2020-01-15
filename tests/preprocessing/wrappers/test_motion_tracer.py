@@ -24,7 +24,7 @@ class TestMotionTracer(unittest.TestCase):
         with open(os.path.join(current_directory, "_original_images_motion_traced.pkl"), "rb") as file:
             cls.image_processed = pickle.load(file)
 
-    def test_process(self):
+    def test_process_single_input(self):
         motion_traced = []
         motion_traced_display = []
         for img in self._rgb2_gray(self.images):
@@ -32,12 +32,23 @@ class TestMotionTracer(unittest.TestCase):
             motion_traced.append(motion_trace)
 
             # uncomment for displaying on the screen, this is the easiest way
-            # motion_traced_display.append(np.hstack([*motion_trace.transpose(2, 0, 1)]))
-        # self._show_image(np.array(motion_traced_display).reshape(64 * 12, 128))
+            motion_traced_display.append(np.hstack([*motion_trace.transpose(2, 0, 1)]))
+        self._show_image(np.array(motion_traced_display).reshape(64 * 12, 128))
 
         motion_traced = np.array(motion_traced)
         self.assertEqual((12, 64, 64, 2), motion_traced.shape)
         self.assertEqual(True, np.array_equal(self.image_processed, motion_traced),
+                         "Processed image is not the same as stored")
+
+    def test_process_multiple_input(self):
+        images = self._rgb2_gray(self.images)
+        motion_trace = self.wrapper.process(images)
+
+        motion_traced = np.array([np.hstack([np.transpose(img, axes=(1, 2, 0))]) for img in motion_trace])
+        self._show_image(motion_traced.reshape(64*12, 64*2))
+
+        self.assertEqual((12, 64, 64, 2), motion_trace.shape)
+        self.assertEqual(True, np.array_equal(self.image_processed, motion_trace),
                          "Processed image is not the same as stored")
 
     def _show_saved_image(self):
