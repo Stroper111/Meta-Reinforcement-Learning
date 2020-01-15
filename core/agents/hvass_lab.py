@@ -7,9 +7,9 @@ from copy import deepcopy
 from core.agents import BaseAgent
 from core.tools import Scheduler
 from core.preprocessing import PreProcessingHvasslab
-from core.models import HvassLab as HvassLabModel
+from core.models import HvassLab as ModelHvassLab
 from core.memory import ReplayMemoryHvassLab
-from core.memory.sampling import BaseSamplingGym
+from core.memory.sampling import SamplingHvassLab
 
 
 class HvassLabAgent(BaseAgent):
@@ -29,7 +29,7 @@ class HvassLabAgent(BaseAgent):
         self.input_shape = self.processor.input_shape()
         self.action_space = self.processor.output_shape()
 
-        self.model = HvassLabModel(self.input_shape, self.action_space)
+        self.model = ModelHvassLab(self.input_shape, self.action_space)
         # self.model.load_checkpoint(self.save_dir)
 
         self.memory = ReplayMemoryHvassLab(size=50_000, shape=self.input_shape, action_space=self.action_space,
@@ -56,7 +56,7 @@ class HvassLabAgent(BaseAgent):
             self.memory.add(state=images['rgb'][0], q_values=q_values, action=actions[0],
                             reward=rewards[0], end_episode=dones[0])
 
-            # TODO add updatin rules for HvassLab, this should be added in HvassLabModel.
+            # TODO add updating rules for HvassLab, this should be added in HvassLabModel.
 
             if update:
                 self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
