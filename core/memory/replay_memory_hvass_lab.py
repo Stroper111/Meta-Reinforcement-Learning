@@ -119,7 +119,7 @@ class ReplayMemoryHvassLab:
         idx_high = np.random.choice(self.idx_error_high, size=self.num_samples_error_high, replace=False)
         idx = np.concatenate((idx_low, idx_high))
 
-        batch_states = np.transpose(np.array([self.states[loc] for loc in idx]), axes=(0, 3, 2, 1))
+        batch_states = np.array([self.states[loc] for loc in idx])
         batch_q_values = self.q_values[idx]
         return batch_states, batch_q_values
 
