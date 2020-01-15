@@ -33,7 +33,7 @@ class HvassLabAgent(BaseAgent):
         # self.model.load_checkpoint(self.save_dir)
 
         self.memory = ReplayMemoryHvassLab(size=50_000, shape=self.input_shape, action_space=self.action_space,
-                                           stackedframes=True)
+                                           stackedframes=False)
 
         kwargs = dict(time_update=10)
         self.scheduler = Scheduler(self.env, **kwargs)

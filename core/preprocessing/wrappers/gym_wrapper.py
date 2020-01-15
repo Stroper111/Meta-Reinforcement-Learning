@@ -12,12 +12,12 @@ class GymWrapper(BaseWrapper):
         self.setup = {env.spec.id: 1}
         self.instances = 1
         self.venv = [env]
-        self._reset_values = self._setup_reset_values(env)
+        self._reset_values = self._create_reset_values(env)
 
     def step(self, action):
         """ Perform a step in a gym env and wraps everything like a MultiEnv.  """
         if self._on_reset:
-            return self._on_reset()
+            return self._run_on_reset()
 
         img, reward, done, info = self.env.step(action[0])
         self._on_reset = done
@@ -27,12 +27,13 @@ class GymWrapper(BaseWrapper):
         """ Wraps the reset.  """
         return self._image(self.env.reset())
 
-    def _on_reset(self):
+    def _run_on_reset(self):
         """ Procgen envs don't reset, they play on.  This creates the same effect.  """
         self._on_reset = False
         return (self.reset(), *self._reset_values,)
 
-    def _setup_reset_values(self, env):
+    def _create_reset_values(self, env):
+        """ Create all the reset variables """
         env.reset()
         _, reward, done, info = env.step(0)
         return np.array([0]), np.array([0]), [info]

@@ -25,7 +25,7 @@ def main_gym():
 
 def main_hvass_lab():
     """ Manually created, currently only for 1 single gym environment.  """
-    setup = {'MsPacman-v0': 1}
+    setup = {'Breakout-v0': 1}
     controller = HvassLabAgent(setup)
     return controller
 

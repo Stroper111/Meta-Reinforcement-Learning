@@ -98,6 +98,17 @@ class ReplayMemoryHvassLab:
             self.estimation_errors[k] = abs(action_value - self.q_values[k, action])
             self.q_values[k, action] = action_value
 
+    def prepare_sampling(self, batch_size=128):
+        error = self.estimation_errors[0:self.pointer]
+
+        idx = error < self.error_threshold
+        self.idx_error_low = np.squeeze(np.where(idx))
+        self.idx_error_high = np.squeeze(np.where(np.logical_not(idx)))
+
+        probability_high_error = max(0.5, len(self.idx_error_high) / self.pointer)
+        self.num_samples_error_high = int(probability_high_error * batch_size)
+        self.num_samples_error_low = batch_size - self.num_samples_error_high
+
     def print_statistics(self):
         print("\nReplay-memory statistics")
 
