@@ -22,15 +22,16 @@ class TestRescaling(unittest.TestCase):
         with open(os.path.join(current_directory, "_original_images.pkl"), "rb") as file:
             cls.images = pickle.load(file)['rgb']
 
-        # with open(os.path.join(current_directory, "_original_images_rescale.pkl"), "rb") as file:
-        #     cls.image_processed = pickle.load(file)
+        with open(os.path.join(current_directory, "_original_images_rescale.pkl"), "rb") as file:
+            cls.image_processed = pickle.load(file)
 
     def test_process(self):
         gray = self._rgb2_gray(self.images)
         rescaled = self.wrapper.process(gray)
         x, y = self.new_shape
         image = np.reshape(rescaled, newshape=(x * 3, y * 4))
-        self.assertEqual((x * 3, y * 4), image.shape, "Processed image is not the same as stored")
+        self.assertEqual((x * 3, y * 4), image.shape, "Processed image shape is not correct")
+        self.assertEqual(True, np.array_equal(self.image_processed, image), "Processed image is not the same as stored")
 
     def _show_saved_image(self):
         """ Not a test method, but created for when a user wants to see input/output.  """
