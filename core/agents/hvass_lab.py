@@ -34,7 +34,7 @@ class HvassLabAgent(BaseAgent):
         # self.model.load_checkpoint(self.save_dir)
 
         # Controller for setting time, step and episodes limits and updates.
-        kwargs = dict(time_update=10, write_summary=False)
+        kwargs = dict(episode_update=50, time_limit=60 * 60 * 10)
         self.scheduler = Scheduler(self.env, **kwargs)
 
         # Controller for exploration vs exploitation
@@ -106,13 +106,13 @@ class HvassLabAgent(BaseAgent):
                     self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
                     self.memory.reset()
 
-                if self.training and dones[0]:
-                    summary = env.last_episode_info()
-                    msg = "{episode:6,d}:{states:11,d}\t Epsilon: {epsilon:4.2f}\t" \
-                          " Reward: {reward_episode:.1f}\t Episode Mean: {reward_mean:.1f}"
-                    print(msg.format(episode=episode, states=steps,
-                                     epsilon=epsilon, reward_episode=summary['reward'],
-                                     reward_mean=summary['mean']))
+                # if self.training and dones[0]:
+                #     summary = env.last_episode_info()
+                #     msg = "{episode:6,d}:{states:11,d}\t Epsilon: {epsilon:4.2f}\t" \
+                #           " Reward: {reward_episode:.1f}\t Episode Mean: {reward_mean:.1f}"
+                #     print(msg.format(episode=episode, states=steps,
+                #                      epsilon=epsilon, reward_episode=summary['reward'],
+                #                      reward_mean=summary['mean']))
 
     @staticmethod
     def reformat_states(states):
