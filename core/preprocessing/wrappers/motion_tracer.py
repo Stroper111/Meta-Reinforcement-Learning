@@ -68,7 +68,6 @@ class MotionTracer(BaseWrapper):
 
         # Stack the last input and output images.
         state = np.stack([self.last_input, self.last_output])
-        print(state.shape, *self.dimensions[1:])
         state = np.transpose(state, axes=(*self.dimensions[1:], 0))
 
         # Convert to 8-bit integer.
