@@ -5,6 +5,7 @@ import time
 import os
 
 from PIL import Image
+from unittest.mock import Mock
 
 from core.preprocessing.wrappers.rgb2gray import RGB2Gray
 
@@ -13,8 +14,8 @@ class TestRGB2Gray(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.setup = dict(coinrun=12)
-        cls.wrapper = RGB2Gray(cls.setup)
+        cls.env = Mock()
+        cls.wrapper = RGB2Gray(cls.env)
 
         current_directory = os.path.dirname(os.path.abspath(__file__))
 

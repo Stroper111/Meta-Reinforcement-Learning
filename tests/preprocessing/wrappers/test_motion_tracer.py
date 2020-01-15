@@ -5,7 +5,7 @@ import time
 import os
 
 from PIL import Image
-
+from unittest.mock import Mock
 from core.preprocessing.wrappers.motion_tracer import MotionTracer
 
 
@@ -13,9 +13,6 @@ class TestMotionTracer(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.setup = dict(coinrun=12)
-        cls.wrapper = MotionTracer(cls.setup)
-
         current_directory = os.path.dirname(os.path.abspath(__file__))
 
         with open(os.path.join(current_directory, "_original_images.pkl"), "rb") as file:
@@ -24,6 +21,10 @@ class TestMotionTracer(unittest.TestCase):
         with open(os.path.join(current_directory, "_original_images_motion_traced.pkl"), "rb") as file:
             cls.image_processed = pickle.load(file)
 
+    def setUp(self) -> None:
+        self.env = Mock(0)
+        self.wrapper = MotionTracer(self.env)
+
     def test_process_single_input(self):
         motion_traced = []
         for img in self._rgb2_gray(self.images):
@@ -31,7 +32,6 @@ class TestMotionTracer(unittest.TestCase):
             motion_traced.append(motion_trace)
             self.wrapper._setup(img)
         motion_traced = np.array(motion_traced)
-        self._show_result_images(motion_traced)
 
         self.assertEqual((12, 64, 64, 2), motion_traced.shape)
         self.assertEqual(True, np.array_equal(self.image_processed, motion_traced),
@@ -84,7 +84,8 @@ class TestMotionTracer(unittest.TestCase):
         image = np.reshape(self.images, newshape=(64 * 3, 64 * 4, 3))
         self._show_image(image, wait_time=1)
 
-    def _save_image(self, image):
+    @staticmethod
+    def _save_image(image):
         """ Helper function to store manually checked image after testing, please use wisely.  """
         current_directory = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(current_directory, "_original_images_motion_traced.pkl"), "wb") as file:

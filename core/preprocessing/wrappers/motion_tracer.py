@@ -15,8 +15,8 @@ class MotionTracer(BaseWrapper):
             the trace / tail is longer.
     """
 
-    def __init__(self, setup, decay=0.75):
-        super().__init__(setup)
+    def __init__(self, env, decay=0.75):
+        super().__init__(env)
 
         # Size of each image in the state. Reversed order used by PIL.Image.
         self.setup = False

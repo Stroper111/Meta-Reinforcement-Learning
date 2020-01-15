@@ -5,6 +5,7 @@ import time
 import os
 
 from PIL import Image
+from unittest.mock import Mock
 
 from core.preprocessing.wrappers.rescaling_gray import RescalingGray
 
@@ -13,9 +14,10 @@ class TestRescaling(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.setup = dict(coinrun=12)
+        cls.env = Mock()
+        cls.env.setup = dict(coinrun=12)
         cls.new_shape = (200, 40)
-        cls.wrapper = RescalingGray(cls.setup, new_shape=cls.new_shape)
+        cls.wrapper = RescalingGray(cls.env, new_shape=cls.new_shape)
 
         current_directory = os.path.dirname(os.path.abspath(__file__))
 
