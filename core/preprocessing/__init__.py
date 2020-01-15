@@ -1,5 +1,5 @@
 from .abstract import AbstractPreProcessing
-from .base import BasePreProcessing
+from .base_multi_env import BasePreProcessing
 from .base_gym import BasePreProcessingGym
 
 from .deepmind import PreProcessingDeempind
