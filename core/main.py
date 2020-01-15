@@ -31,5 +31,5 @@ def main_hvass_lab():
 
 
 if __name__ == '__main__':
-    controller = main()
+    controller = main_hvass_lab()
     controller.run()
