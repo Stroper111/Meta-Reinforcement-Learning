@@ -42,4 +42,3 @@ class RescalingGray(BaseWrapper):
                                      resample=PIL.Image.LINEAR)
             self.new_image[idx] = img_resized
         return self.new_image
-
