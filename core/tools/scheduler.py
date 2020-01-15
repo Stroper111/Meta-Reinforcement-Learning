@@ -82,4 +82,4 @@ class EpsilonGreedy:
             # Otherwise select the action that has the highest Q-value.
             action = np.argmax(q_values)
 
-        return action, epsilon
+        return [action], epsilon

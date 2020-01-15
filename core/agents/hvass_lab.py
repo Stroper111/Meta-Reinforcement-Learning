@@ -4,7 +4,7 @@ import gym
 from copy import deepcopy
 
 from core.agents import BaseAgent
-from core.tools import Scheduler, LinearControlSignal
+from core.tools import Scheduler, LinearControlSignal, EpsilonGreedy
 from core.preprocessing import PreProcessingHvasslab
 from core.models import HvassLab as ModelHvassLab
 from core.memory import ReplayMemoryHvassLab
@@ -34,12 +34,19 @@ class HvassLabAgent(BaseAgent):
         # self.model.load_checkpoint(self.save_dir)
 
         # Controller for setting time, step and episodes limits and updates.
-        kwargs = dict(time_update=10)
+        kwargs = dict(time_update=10, write_summary=False)
         self.scheduler = Scheduler(self.env, **kwargs)
+
+        # Controller for exploration vs exploitation
+        self.epsilon_greedy = EpsilonGreedy(start_value=1.0,
+                                            end_value=0.05,
+                                            num_iterations=1e6,
+                                            num_actions=self.action_space,
+                                            epsilon_testing=0.01)
 
         # Initialize the Replay Memory and set all control signals
         if self.training:
-            self.memory = ReplayMemoryHvassLab(size=1_000_000, shape=self.input_shape, action_space=self.action_space,
+            self.memory = ReplayMemoryHvassLab(size=200_000, shape=self.input_shape, action_space=self.action_space,
                                                stackedframes=False)
 
             self.learning_rate_control = LinearControlSignal(
@@ -62,12 +69,20 @@ class HvassLabAgent(BaseAgent):
 
     def run(self):
         images = self.scheduler.reset_images
-        q_values, actions = self.model.actions(self.reformat_states(images))
+        q_values = self.model.actions(self.reformat_states(images))
+
 
         for env, update, episode, steps in self.scheduler:
+
+            # Determine the action that the agent must take in the game-environment.
+            # The epsilon is just used for printing further below.
+            actions, epsilon = self.epsilon_greedy.get_action(q_values=q_values,
+                                                              iteration=steps,
+                                                              training=self.training)
+
             images, rewards, dones, infos = env.step(actions)
             # Please always use deepcopy for this, due to memory usage, otherwise all layzframes are stored unpacked
-            q_values, actions_new = self.model.actions(self.reformat_states(deepcopy(images)))
+            q_values = self.model.actions(self.reformat_states(deepcopy(images)))
 
             if self.training:
                 self.memory.add(state=images['rgb'][0], q_values=q_values, action=actions[0],
@@ -91,7 +106,13 @@ class HvassLabAgent(BaseAgent):
                     self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
                     self.memory.reset()
 
-            actions = actions_new
+                if self.training and dones[0]:
+                    summary = env.last_episode_info()
+                    msg = "{episode:6,d}:{states:11,d}\t Epsilon: {epsilon:4.2f}\t" \
+                          " Reward: {reward_episode:.1f}\t Episode Mean: {reward_mean:.1f}"
+                    print(msg.format(episode=episode, states=steps,
+                                     epsilon=epsilon, reward_episode=summary['reward'],
+                                     reward_mean=summary['mean']))
 
     @staticmethod
     def reformat_states(states):

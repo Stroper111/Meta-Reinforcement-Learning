@@ -73,8 +73,7 @@ class HvassLab(BaseModel):
     def actions(self, states):
         """ For this example we sample epsilon outside of the model.  """
         q_values = self.model.predict(states)
-        action = np.argmax(q_values, axis=1)
-        return q_values, action
+        return q_values
 
     def optimize(self, replay_memory, min_epochs=1., max_epochs=10, batch_size=128, loss_limit=0.015,
                  learning_rate=1e-3):
@@ -85,7 +84,7 @@ class HvassLab(BaseModel):
         print("\tMax epochs: %.1f" % max_epochs)
 
         replay_memory.prepare_sampling(batch_size=batch_size)
-        iterations_per_epoch = replay_memory.num_used / batch_size
+        iterations_per_epoch = replay_memory.pointer / batch_size
 
         iterations_min = int(iterations_per_epoch * min_epochs)
         iterations_max = int(iterations_per_epoch * max_epochs)

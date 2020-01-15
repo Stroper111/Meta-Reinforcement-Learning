@@ -47,10 +47,12 @@ class StatisticsUnique(BaseWrapper, ABC):
         return dict(**episodic, **continuous)
 
     def scheduler(self):
+        """ Returns scheduler information.  """
         return sum(self._episodic.episode), self._continuous.total_steps
 
-    def model(self):
-        return sum(self._episodic.episode), self._continuous.total_steps
+    def last_episode_info(self):
+        """ Returns the episode, number of steps, reward and continuous mean of last episode.  """
+        return self._episodic.last_episode_info
 
     def _step_update(self, rewards, dones):
         """ Update all statics on a step.  """
@@ -89,6 +91,7 @@ class Episode:
         self.rewards = np.zeros(instances, dtype=np.float)
         self.continuous = continuous
         self.save_paths = save_paths
+        self.last_episode_info = dict(episode=0, steps=0, reward=0, mean=0)
 
     def summary(self):
         return dict(episode=self.episode, steps=self.steps, rewards=self.rewards)
@@ -110,5 +113,7 @@ class Episode:
     def write(self, idx, mean):
         with open(f"{self.save_paths[idx]}.txt", mode='a', buffering=1) as file:
             msg = "{episode:9,d}\t{steps:8,d}\t{reward:6,.1f}\t{mean:9,.2f}\n"
-            msg = msg.format(episode=self.episode[idx], steps=self.steps[idx], reward=self.rewards[idx], mean=mean)
+            msg_info = dict(episode=self.episode[idx], steps=self.steps[idx], reward=self.rewards[idx], mean=mean)
+            msg = msg.format(**msg_info)
             file.write(msg)
+        self.last_episode_info = msg_info
