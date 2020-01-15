@@ -4,11 +4,18 @@ from core.tools import MultiEnv
 from core.preprocessing.wrappers import RGB2Gray, FrameStack, StatisticsUnique
 
 
-class BasePreProcessing(AbstractPreProcessing):
+class BasePreProcessingMultiEnv(AbstractPreProcessing):
+    """
+        Base processor for the MultiEnv, which is meant to play on the procgen module.
+
+        Otherwise you might to correct the input_shape method.
+    """
+
     def __init__(self, env: MultiEnv,
                  rgb2gray=True,
                  frame_stack=4,
                  statistics=True, history_size=30, save_dir=None):
+        super().__init__(env)
 
         self.env = env
         self.instances = env.instances

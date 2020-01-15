@@ -3,10 +3,16 @@ from core.preprocessing.wrappers import RGB2Gray, FrameStack, StatisticsUnique, 
 
 
 class BasePreProcessingGym(AbstractPreProcessing):
+    """
+        Base processor for the MultiEnv, which is meant to play on the procgen module.
+
+        Otherwise you might to correct the input_shape method.
+    """
     def __init__(self, env,
                  rgb2gray=False,
                  frame_stack=0,
                  statistics=True, history_size=30, save_dir=None):
+        super().__init__(env)
 
         self.env = env
         self.env = GymWrapper(self.env)

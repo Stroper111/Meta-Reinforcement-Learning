@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from core.agents import BaseAgent
 from core.tools import MultiEnv, Scheduler
-from core.preprocessing import BasePreProcessing
+from core.preprocessing import BasePreProcessingMultiEnv
 from core.models import BaseModel
 from core.memory.base_replay_memory import BaseReplayMemory
 from core.memory.sampling import BaseSamplingMultiEnv
@@ -20,7 +20,7 @@ class BaseAgentMultiEnv(BaseAgent):
         self.env = MultiEnv(self.setup)
 
         self.save_dir = self.create_save_directory()
-        self.processor = BasePreProcessing(self.env, save_dir=self.save_dir, history_size=50)
+        self.processor = BasePreProcessingMultiEnv(self.env, save_dir=self.save_dir, history_size=50)
 
         self.env = self.processor.env
         self.input_shape = self.processor.input_shape()
