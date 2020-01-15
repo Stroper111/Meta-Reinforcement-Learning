@@ -15,14 +15,14 @@ class RescalingGray(BaseWrapper):
 
     """
 
-    def __init__(self, setup, new_shape):
-        super().__init__(setup)
-        assert len(new_shape) == 2, "Only 2D images are supported at this time. (use np.squeeze)"
+    def __init__(self, env, new_shape):
+        super().__init__(env)
+        assert len(new_shape) == 2, "Only 2D images are supported at this time. (use np.squeeze or RGB2Gray)"
 
         # Size of each image in the state. Reversed order used by PIL.Image.
         x, y, *z = new_shape
         self.new_shape = (y, x, *z)
-        self.new_image = np.zeros((sum(setup.values()), *new_shape))
+        self.new_image = np.zeros((sum(env.setup.values()), *new_shape))
 
     def step(self, action):
         img, *args = self.env.step(action)
