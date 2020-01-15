@@ -88,7 +88,6 @@ class HvassLabAgent(BaseAgent):
                                         loss_limit=loss_limit,
                                         max_epochs=max_epochs)
 
-
                     self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
                     self.memory.reset()
 

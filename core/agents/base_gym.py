@@ -51,7 +51,7 @@ class BaseAgentGym(BaseAgent):
             # Add new entry to the memory
             self.memory.add(state=state['rgb'][0], action=action[0], reward=reward[0], end_episode=done[0])
 
-             # Refill memory when full
+            # Refill memory when full
             if self.memory.is_full():
                 self.memory.refill_memory()
 

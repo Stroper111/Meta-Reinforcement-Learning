@@ -1,4 +1,3 @@
-
 from core.preprocessing.abstract import AbstractPreProcessing
 from core.preprocessing.wrappers import *
 
@@ -48,7 +47,6 @@ class PreProcessingHvasslab(AbstractPreProcessing):
     def input_shape(self):
         shape = (210, 160, 3)
         if self.rescaling_dim is not None:
-            x, y, z = shape
             shape = (*self.rescaling_dim, 1)
 
         if self.motion_tracer:
