@@ -55,14 +55,17 @@ class ReplayMemoryHvassLab:
         return self.pointer if not self.filled else self.size
 
     def get_batch(self, idx):
+        """ Return a single batch.  """
         states = [self.states[x] for x in idx]
         return states, self.q_values[idx]
 
     def reset(self):
+        """ Flushes the replay memory completely.  """
         self.pointer = 0
         self.filled = False
 
     def refill_memory(self):
+        """ Allows new memories to be added while sampling over older ones as well.  """
         self.pointer = 0
         self.filled = True
 
@@ -70,6 +73,7 @@ class ReplayMemoryHvassLab:
         return self.pointer / self.size
 
     def is_full(self):
+        """ TO be compatible with hvasslab code.  """
         return self.pointer >= self.size
 
     def add(self, state, q_values, action, reward, end_episode):
@@ -97,6 +101,7 @@ class ReplayMemoryHvassLab:
 
             self.estimation_errors[k] = abs(action_value - self.q_values[k, action])
             self.q_values[k, action] = action_value
+        self.print_statistics()
 
     def prepare_sampling(self, batch_size=128):
         error = self.estimation_errors[0:self.pointer]
@@ -108,6 +113,15 @@ class ReplayMemoryHvassLab:
         probability_high_error = max(0.5, len(self.idx_error_high) / self.pointer)
         self.num_samples_error_high = int(probability_high_error * batch_size)
         self.num_samples_error_low = batch_size - self.num_samples_error_high
+
+    def batch_random(self):
+        idx_low = np.random.choice(self.idx_error_low, size=self.num_samples_error_low, replace=False)
+        idx_high = np.random.choice(self.idx_error_high, size=self.num_samples_error_high, replace=False)
+        idx = np.concatenate((idx_low, idx_high))
+
+        batch_states = np.transpose(np.array([self.states[loc] for loc in idx]), axes=(0, 3, 2, 1))
+        batch_q_values = self.q_values[idx]
+        return batch_states, batch_q_values
 
     def print_statistics(self):
         print("\nReplay-memory statistics")
