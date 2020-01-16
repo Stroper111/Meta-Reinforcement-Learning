@@ -76,7 +76,7 @@ class ReplayMemoryHvassLab:
         """ TO be compatible with hvasslab code.  """
         return self.pointer >= self.size
 
-    def add(self, state, q_values, action, reward, end_episode):
+    def add(self, state, q_values, action, reward, end_life, end_episode):
         if not self.is_full():
             k = self.pointer
             self.pointer += 1
@@ -84,6 +84,7 @@ class ReplayMemoryHvassLab:
             self.states[k] = state
             self.q_values[k] = q_values
             self.actions[k] = action
+            self.end_life[k] = end_life
             self.end_episode[k] = end_episode
             self.rewards[k] = np.clip(reward, -1.0, 1.0)
 
@@ -92,9 +93,10 @@ class ReplayMemoryHvassLab:
         for k in reversed(range(self.pointer - 1)):
             action = self.actions[k]
             reward = self.rewards[k]
+            end_life = self.end_life[k]
             end_episode = self.end_episode[k]
 
-            if end_episode:
+            if end_episode or end_life:
                 action_value = reward
             else:
                 action_value = reward + self.gamma * np.max(self.q_values[k + 1])

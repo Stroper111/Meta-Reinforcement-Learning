@@ -23,11 +23,11 @@ class HvassLab(BaseModel):
         # In hvasslab they use tf, which has an easier interface (for a change)
         self.optimizer = RMSprop(learning_rate=1e-3)
 
-        self.model = self.create_model(input_shape, action_space)
+        self.model = self.create_model(input_shape, action_space, self.optimizer)
         self.epsilon = epsilon
 
     @staticmethod
-    def create_model(input_shape, output_shape):
+    def create_model(input_shape, output_shape, optimizer):
         init = TruncatedNormal(mean=0, stddev=2e-2)
 
         model = Sequential(
@@ -66,7 +66,7 @@ class HvassLab(BaseModel):
                       kernel_initializer=init, activation='linear')
             ]
         )
-        model.compile(optimizer=RMSprop(lr=1e-4), loss='mse')
+        model.compile(optimizer=optimizer, loss='mse')
         # model.summary()
         return model
 
@@ -93,17 +93,16 @@ class HvassLab(BaseModel):
         for iteration in range(iterations_max):
             batch_states, batch_q_values = replay_memory.batch_random()
             loss = self.model.fit(batch_states, batch_q_values, verbose=0).history['loss'][0]
-            loss_history.append(loss)
+            loss_history.append(loss ** (0.5))
             loss_mean = sum(loss_history) / len(loss_history)
 
-            # TODO put this back after server
-            if iteration > iterations_min and loss_mean < loss_limit:
-                percentage_epoch = iteration / iterations_per_epoch
-                msg = "\r\tIteration: {iteration} ({pct:.2f} epoch), Batch loss: {loss:.4f}, Mean loss: {mean_loss:.4f}"
-                sys.stdout.write(msg.format(iteration=iteration, pct=percentage_epoch, loss=loss, mean_loss=loss_mean))
-                sys.stdout.flush()
-                break
+            percentage_epoch = iteration / iterations_per_epoch
+            msg = "\r\tIteration: {iteration} ({pct:.2f} epoch), Batch loss: {loss:.4f}, Mean loss: {mean_loss:.4f}"
+            sys.stdout.write(msg.format(iteration=iteration, pct=percentage_epoch, loss=loss, mean_loss=loss_mean))
+            sys.stdout.flush()
 
+            if iteration > iterations_min and loss_mean < loss_limit:
+                break
         print("\n")
 
     def change_learning_rate(self, learning_rate):

@@ -34,8 +34,8 @@ class HvassLabAgent(BaseAgent):
         # self.model.load_checkpoint(self.save_dir)
 
         # Controller for setting time, step and episodes limits and updates.
-        kwargs = dict(episode_update=50, time_limit=60 * 60 * 10)
-        self.scheduler = Scheduler(self.env, **kwargs)
+        kwargs = dict(step_limit=50_000_000, write_summary=False)
+        self.scheduler = Scheduler(self.env, **kwargs, )
 
         # Controller for exploration vs exploitation
         self.epsilon_greedy = EpsilonGreedy(start_value=1.0,
@@ -71,7 +71,7 @@ class HvassLabAgent(BaseAgent):
         images = self.scheduler.reset_images
         q_values = self.model.actions(self.reformat_states(images))
 
-
+        num_lives = 5
         for env, update, episode, steps in self.scheduler:
 
             # Determine the action that the agent must take in the game-environment.
@@ -84,9 +84,13 @@ class HvassLabAgent(BaseAgent):
             # Please always use deepcopy for this, due to memory usage, otherwise all layzframes are stored unpacked
             q_values = self.model.actions(self.reformat_states(deepcopy(images)))
 
+            num_lives_new = self.get_lives()
+            end_life = (num_lives_new < num_lives)
+            num_lives = num_lives_new
+
             if self.training:
                 self.memory.add(state=images['rgb'][0], q_values=q_values, action=actions[0],
-                                reward=rewards[0], end_episode=dones[0])
+                                reward=rewards[0], end_life=end_life, end_episode=dones[0])
 
                 use_fraction = self.replay_fraction.get_value(iteration=steps)
                 if self.memory.is_full() or self.memory.pointer_ratio() >= use_fraction:
@@ -106,13 +110,17 @@ class HvassLabAgent(BaseAgent):
                     self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
                     self.memory.reset()
 
-                # if self.training and dones[0]:
-                #     summary = env.last_episode_info()
-                #     msg = "{episode:6,d}:{states:11,d}\t Epsilon: {epsilon:4.2f}\t" \
-                #           " Reward: {reward_episode:.1f}\t Episode Mean: {reward_mean:.1f}"
-                #     print(msg.format(episode=episode, states=steps,
-                #                      epsilon=epsilon, reward_episode=summary['reward'],
-                #                      reward_mean=summary['mean']))
+                if self.training and dones[0]:
+                    summary = env.last_episode_info()
+                    msg = "{episode:6,d}:{states:11,d}\t Epsilon: {epsilon:4.2f}\t" \
+                          " Reward: {reward_episode:.1f}\t Episode Mean: {reward_mean:.1f}"
+                    print(msg.format(episode=episode, states=steps,
+                                     epsilon=epsilon, reward_episode=summary['reward'],
+                                     reward_mean=summary['mean']))
+
+    def get_lives(self):
+        """ Get the number of lives the agent has in the game-environment.  """
+        return self.env.unwrapped.ale.lives()
 
     @staticmethod
     def reformat_states(states):
