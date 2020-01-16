@@ -93,7 +93,8 @@ class HvassLab(BaseModel):
         for iteration in range(iterations_max):
             batch_states, batch_q_values = replay_memory.batch_random()
             loss = self.model.fit(batch_states, batch_q_values, verbose=0).history['loss'][0]
-            loss_history.append(loss ** (0.5))
+            loss = loss ** (0.5)
+            loss_history.append(loss)
             loss_mean = sum(loss_history) / len(loss_history)
 
             percentage_epoch = iteration / iterations_per_epoch
