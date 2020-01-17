@@ -12,12 +12,12 @@ from collections import deque
 
 
 class BaseAgentGym(BaseAgent):
-    def __init__(self, setup):
+    def __init__(self, setup: list):
         super().__init__(setup)
 
-        self.setup = setup
-        self.instances = sum(setup.values())
-        self.env = self._create_env(setup)
+        self.setup = self._convert_setup_to_dict(setup)
+        self.instances = sum(self.setup.values())
+        self.env = self._create_env(self.setup)
 
         self.save_dir = self.create_save_directory()
 

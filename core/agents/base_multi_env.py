@@ -12,10 +12,10 @@ from core.memory.sampling import BaseSamplingMultiEnv
 
 
 class BaseAgentMultiEnv(BaseAgent):
-    def __init__(self, setup: dict):
+    def __init__(self, setup: list):
         super().__init__(setup)
 
-        self.setup = setup
+        self.setup = self._convert_setup_to_dict(setup)
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 

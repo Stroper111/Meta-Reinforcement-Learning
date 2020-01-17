@@ -11,14 +11,14 @@ from core.memory import ReplayMemoryHvassLab
 
 
 class HvassLabAgent(BaseAgent):
-    def __init__(self, setup: dict, training=True):
+    def __init__(self, setup: [dict, list], training=True):
         super().__init__(setup)
 
-        self.setup = setup
+        self.setup = self._convert_setup_to_dict(setup)
         self.training = training
 
         self.instances = sum(self.setup.values())
-        self.env = self._create_env(setup)
+        self.env = self._create_env(self.setup)
 
         self.save_dir = self.create_save_directory()
 

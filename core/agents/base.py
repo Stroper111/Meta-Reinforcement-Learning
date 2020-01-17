@@ -7,9 +7,11 @@ from core.agents import AbstractAgent
 
 
 class BaseAgent(AbstractAgent):
-    def __init__(self, setup):
-        self.setup = setup
-        self.instances = sum(setup.values())
+
+
+    def __init__(self, setup: list):
+        self.setup = self._convert_setup_to_dict(setup)
+        self.instances = sum(self.setup.values())
 
     def run(self):
         pass
@@ -37,3 +39,20 @@ class BaseAgent(AbstractAgent):
     @staticmethod
     def _current_time():
         return time.strftime('%Y-%b-%d-%a_%H.%M.%S')
+
+    def _convert_setup_to_dict(self, setup_old: [dict, list]):
+        if isinstance(setup_old, dict):
+            return setup_old
+
+        if isinstance(setup_old, list):
+            key = None
+            setup_new = dict()
+            for idx, each in enumerate(setup_old):
+                if each.isdigit():
+                    setup_new[key] = int(each)
+                else:
+                    key = each
+                    setup_new[key] = 1
+            return setup_new
+
+        raise ValueError("Setup is not in a valid format, either use a dictionary or list.")
