@@ -13,7 +13,7 @@ from collections import deque
 
 class BaseAgentGym(BaseAgent):
     """
-        Base gym example, tested on CartPole-v0. For more complex games
+        Base gym example, only meant for 1D observations. For more complex games
         Take a look at hvasslab implementation.
     """
 
