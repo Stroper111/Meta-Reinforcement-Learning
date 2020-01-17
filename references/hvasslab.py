@@ -172,13 +172,9 @@ import argparse
 # then call the function update_paths(env_name) to update all the paths.
 # This should be done before you create the Agent and NeuralNetwork etc.
 
-# In case you want to add a different path for storing the data, you can
-# create a 'personal.py' file in the 'core/config' folder. please make
-# sure to copy all data from the 'default.py'.
-if not os.path.exists(os.path.join("core", "config", "personal.py")):
-    from core.config.default import *
-else:
-    from core.config.personal import *
+# Default base-directory for the checkpoints and log-files.
+# The environment-name will be appended to this.
+checkpoint_base_dir = "checkpoints_tutorial16/"
 
 # Combination of base-dir and environment-name.
 checkpoint_dir = None
@@ -188,6 +184,7 @@ log_reward_path = None
 
 # Full path for the log-file for Q-values.
 log_q_values_path = None
+
 
 
 def update_paths(env_name):
