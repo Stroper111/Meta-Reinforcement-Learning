@@ -174,7 +174,7 @@ import argparse
 
 # Default base-directory for the checkpoints and log-files.
 # The environment-name will be appended to this.
-checkpoint_base_dir = "checkpoints_tutorial16/"
+checkpoint_base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Combination of base-dir and environment-name.
 checkpoint_dir = None
