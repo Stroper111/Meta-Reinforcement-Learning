@@ -44,18 +44,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=desc)
 
     # Add arguments to the parser.
-    parser.add_argument("--agents", required=False, default='default',
+    parser.add_argument("-a", "--agents", required=False, default='default',
                         help=f"Agents that can be directly called from the command line, valid options are "
                              f"{' '.join(agents.keys())}")
 
     # Add arguments to the parser.
-    parser.add_argument("--setup", required=True, default='Breakout-v0 1', nargs='+',
+    parser.add_argument("-s", "--setup", required=True, default='coinrun bigfish', nargs='+', type=lambda x: x.split(),
                         help="The setup environments as dictionary, where the key is he environment name and the value "
                              "are the number of instances of that environment, example: 'coinrun 1 bigfish 1', "
                              "this creates two environments, one coinrun and bighfish environment.")
 
     args = parser.parse_args()
-
 
     controller = agents[args.agents](args.setup)
     controller.run()
