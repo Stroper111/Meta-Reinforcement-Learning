@@ -12,6 +12,11 @@ from collections import deque
 
 
 class BaseAgentGym(BaseAgent):
+    """
+        Base gym example, tested on CartPole-v0. For more complex games
+        Take a look at hvasslab implementation.
+    """
+
     def __init__(self, setup: list):
         super().__init__(setup)
 

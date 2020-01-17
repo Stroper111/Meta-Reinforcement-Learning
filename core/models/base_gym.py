@@ -9,7 +9,7 @@ from core.models import BaseModel
 
 class BaseModelGym(BaseModel):
     @staticmethod
-    def create_model(input_shape, action_space):
+    def create_model(input_shape, action_space, *args, **kwargs):
         model = Sequential(
             [
                 Dense(name='layer_fc_in', input_shape=input_shape, units=24, activation='relu'),
@@ -18,11 +18,12 @@ class BaseModelGym(BaseModel):
             ]
         )
         model.compile(optimizer=Adam(lr=1e-3), loss='mse')
-        model.summary()
+        # model.summary()
         return model
 
     def actions(self, states):
         """ For this example we sample epsilon outside of the model.  """
         q_values = self.model.predict(states)
+        print(q_values.shape)
         action = np.argmax(q_values, axis=1)
         return q_values, action
