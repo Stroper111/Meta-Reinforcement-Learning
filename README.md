@@ -32,6 +32,7 @@ interpreted as 1.
 
 ```cmd
 python main.py --agent default --setup coinrun 1 bigfish 1
+python main.py --agent default --setup coinrun bigfish
 ```
 # References
 
