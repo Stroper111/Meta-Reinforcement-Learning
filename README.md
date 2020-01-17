@@ -1,8 +1,7 @@
 # Meta Reinforcement Learning
 
-This is an attempt for building a meta reinforcement 
-learning agent on the [procgen](https://github.com/openai/procgen) 
-environment from OpenAI.
+This is a framework for building  a meta reinforcement learning agent on the 
+[procgen](https://github.com/openai/procgen) environment from OpenAI.
 
 
 # References
