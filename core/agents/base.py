@@ -45,6 +45,7 @@ class BaseAgent(AbstractAgent):
             return setup_old
 
         if isinstance(setup_old, list):
+            setup_old = [info for each in setup_old for info in each]
             key = None
             setup_new = dict()
             for idx, each in enumerate(setup_old):
