@@ -49,7 +49,7 @@ if __name__ == '__main__':
                              f"{' '.join(agents.keys())}")
 
     # Add arguments to the parser.
-    parser.add_argument("-s", "--setup", required=True, default='coinrun bigfish', nargs='+', type=lambda x: x.split(),
+    parser.add_argument("-s", "--setup", required=True, default='coinrun bigfish', nargs='+', type=str,
                         help="The setup environments as dictionary, where the key is he environment name and the value "
                              "are the number of instances of that environment, example: 'coinrun 1 bigfish 1', "
                              "this creates two environments, one coinrun and bighfish environment.")

@@ -31,7 +31,7 @@ class HvassLabAgent(BaseAgent):
         self.action_space = self.processor.output_shape()
 
         self.model = ModelHvassLab(self.input_shape, self.action_space)
-        # self.model.load_checkpoint(self.save_dir)
+        self.model.load_checkpoint(self.save_dir)
 
         # Controller for setting time, step and episodes limits and updates.
         kwargs = dict(step_limit=50_000_000, write_summary=False)

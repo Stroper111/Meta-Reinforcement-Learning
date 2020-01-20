@@ -44,10 +44,10 @@ class BaseAgent(AbstractAgent):
         if isinstance(setup_old, dict):
             return setup_old
 
-        if isinstance(setup_old, list):
-            if isinstance(setup_old[0], list):
-                setup_old = [info for each in setup_old for info in each]
+        if isinstance(setup_old, str):
+            setup_old = setup_old.split()
 
+        if isinstance(setup_old, list):
             key = None
             setup_new = dict()
             for idx, each in enumerate(setup_old):
