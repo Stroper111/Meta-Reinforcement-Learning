@@ -27,7 +27,7 @@ class BaseAgentMultiEnv(BaseAgent):
         self.action_space = self.processor.output_shape()
 
         self.model = BaseModel(self.input_shape, self.action_space)
-        self.model.load_checkpoint(self.save_dir)
+        # self.model.load_checkpoint(self.save_dir)
 
         self.memories = self._create_memories()
         self.samplers = self._create_samplers()
