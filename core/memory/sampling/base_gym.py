@@ -24,16 +24,20 @@ class BaseSamplingGym(AbstractSampling, Sequence):
         gamma: float
             Discount factor for the reinforcement learning update rule.
 
+        alpha: float
+            Learning rate for the target
+
         batch_size: int
             The size of one batch
     """
 
-    def __init__(self, replay_memory, model, gamma, batch_size: int = 64):
+    def __init__(self, replay_memory, model, gamma, alpha=0.1, batch_size: int = 64):
         super().__init__(replay_memory, batch_size)
         self.replay_memory = replay_memory
         self.batch_size = batch_size
         self.model = model
         self.gamma = gamma
+        self.alpha = alpha
 
     def __len__(self):
         return len(self.replay_memory) // self.batch_size
@@ -56,7 +60,7 @@ class BaseSamplingGym(AbstractSampling, Sequence):
         for k in range(batch_size):
             target = rewards[k]
             if not done[k]:
-                target = rewards[k] + 0.1 * (self.gamma * np.amax(q_values_next[k]))
+                target = rewards[k] + self.alpha * (self.gamma * np.amax(q_values_next[k]))
 
             target_f = q_values[k]
             target_f[actions[k]] = target

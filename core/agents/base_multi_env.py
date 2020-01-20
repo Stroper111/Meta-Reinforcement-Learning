@@ -48,7 +48,8 @@ class BaseAgentMultiEnv(BaseAgent):
     def _create_samplers(self):
         samplers = []
         for k in range(self.instances):
-            samplers.append(BaseSamplingMultiEnv(self.memories[k], batch_size=128))
+            samplers.append(BaseSamplingMultiEnv(self.memories[k], model=self.model, alpha=0.1,
+                                                 gamma=0.9, batch_size=128))
         return samplers
 
     def _create_loss(self):
@@ -73,13 +74,13 @@ class BaseAgentMultiEnv(BaseAgent):
                 self.memories[k].add(state=images['rgb'][k], action=actions[k], reward=rewards[k], end_episode=dones[k])
 
             for k in range(self.instances):
-                if self.memories[k].pointer_ratio() >= self.samplers[k].batch_size:
+                if self.memories[k].pointer_ratio() >= self.samplers[k].batch_size / self.memories[k].size:
                     self.loss[k].append(self.model.train_once(sampling=self.samplers[k]))
-                    # self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
 
             if update:
                 loss_msg = ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss])
                 print('\r\tloss (average)'.ljust(18), loss_msg)
+                self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
 
             actions = actions_new
 
