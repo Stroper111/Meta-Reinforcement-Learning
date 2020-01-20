@@ -27,7 +27,7 @@ class BaseAgentMultiEnv(BaseAgent):
         self.action_space = self.processor.output_shape()
 
         self.model = BaseModel(self.input_shape, self.action_space)
-        # self.model.load_checkpoint(self.save_dir)
+        self.model.load_checkpoint(self.save_dir)
 
         self.memories = self._create_memories()
         self.samplers = self._create_samplers()
@@ -78,7 +78,7 @@ class BaseAgentMultiEnv(BaseAgent):
                     self.loss[k].append(self.model.train_once(sampling=self.samplers[k]))
 
             if update:
-                loss_msg = ''.join(['{:15,.4f}'.format(np.mean(game)) for game in self.loss])
+                loss_msg = ''.join(['{:15,.4e}'.format(np.mean(game)) for game in self.loss])
                 print('\r\tloss (average)'.ljust(18), loss_msg)
                 self.model.save_checkpoint(self.save_dir, episode, steps * self.instances)
 
