@@ -19,7 +19,7 @@ class BaseAgentMultiEnv(BaseAgent):
         self.instances = sum(self.setup.values())
         self.env = MultiEnv(self.setup)
 
-        self.save_dir = self.create_save_directory()
+        self.save_dir = self.create_save_directory(agent="default")
         self.processor = BasePreProcessingMultiEnv(self.env, save_dir=self.save_dir, history_size=50)
 
         self.env = self.processor.env

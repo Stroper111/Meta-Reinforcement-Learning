@@ -16,11 +16,12 @@ class BaseAgent(AbstractAgent):
     def run(self):
         pass
 
-    def create_save_directory(self):
+    def create_save_directory(self, agent=None):
+        agent = "" if agent is None else agent
         games = '_'.join([f"{game}_{instance}" for game, instance in self.setup.items()])
         # self.save_dir = os.path.join("D:/", "checkpoint", games, self.current_time())
         package_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
-        save_dir = os.path.join(package_directory, "checkpoint", games, self._current_time())
+        save_dir = os.path.join(package_directory, "checkpoint", agent, games, self._current_time())
         return save_dir
 
     @staticmethod

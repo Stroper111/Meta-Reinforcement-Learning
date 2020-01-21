@@ -24,7 +24,7 @@ class BaseAgentGym(BaseAgent):
         self.instances = sum(self.setup.values())
         self.env = self._create_env(self.setup)
 
-        self.save_dir = self.create_save_directory()
+        self.save_dir = self.create_save_directory(agent="gym")
 
         self.processor = BasePreProcessingGym(self.env, save_dir=self.save_dir, history_size=5)
 
