@@ -8,7 +8,6 @@ from core.agents import AbstractAgent
 
 class BaseAgent(AbstractAgent):
 
-
     def __init__(self, setup: list):
         self.setup = self._convert_setup_to_dict(setup)
         self.instances = sum(self.setup.values())
