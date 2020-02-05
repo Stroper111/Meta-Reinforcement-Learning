@@ -25,7 +25,7 @@ class BaseModel(AbstractModel):
         self.epsilon = epsilon
 
     @staticmethod
-    def create_model(input_shape, action_space):
+    def create_model(input_shape, action_space, *args, **kwargs):
         init = TruncatedNormal(mean=0, stddev=2e-2)
 
         model = Sequential(

@@ -11,13 +11,15 @@ class Scheduler:
     """
 
     def __init__(self, env, episode_limit=np.uint(-1), step_limit=np.uint(-1), time_limit=np.uint(-1),
-                 episode_update=np.uint(-1), step_update=np.uint(-1), time_update=np.uint(-1)):
+                 episode_update=np.uint(-1), step_update=np.uint(-1), time_update=np.uint(-1),
+                 write_summary=True, save_dir=None):
 
         self.env = env
         self.added_temp = False
         if not hasattr(self.env, 'scheduler'):
             self.added_temp = True
-            self.env = StatisticsUnique(self.env, save_dir="temp_statistics")
+            assert save_dir is not None, "The Statistic Wrapper wasn't used, require a save directory."
+            self.env = StatisticsUnique(self.env, save_dir=save_dir)
 
         if episode_update >= episode_limit:
             episode_update = episode_limit
@@ -36,7 +38,10 @@ class Scheduler:
         self.total_time = time.time()
 
         self.reset_images = env.reset()
-        self._write_summary("Startup", True)
+        self.write_summary = write_summary
+
+        if write_summary:
+            self._write_summary("Startup", True)
 
     def __getitem__(self, item):
         episode, steps = self.env.scheduler()
@@ -46,7 +51,9 @@ class Scheduler:
                            ('steps', steps)]:
 
             if value >= self.updates[key]:
-                self._write_summary(key, value)
+                if self.write_summary:
+                    self._write_summary(key, value)
+
                 self.updates[key] = min(self.update_counts[key] + self.updates[key], self.limits[key])
                 update = True
                 if value >= self.limits[key]:
@@ -55,7 +62,7 @@ class Scheduler:
 
     def _write_summary(self, key, value):
         print(f"\nSummary (condition: {key} = {'{:2,d}'.format(int(value))}, elapsed time: {self._convert_time()})")
-        print(f"\t{'Instance:'.ljust(15)}{''.join(['{:15,d}'.format(i) for i in range(self.env.instances)])}")
+        print(f"\t{'%-15s' % 'game'}{''.join([('%15s' % key)*instance for key, instance in self.env.setup.items()])}")
         for stat, result in self.env.summary(stats=['mean']).items():
             print(f"\t{stat.ljust(15)}{''.join(['{:15,.2f}'.format(each) for each in result])}")
 

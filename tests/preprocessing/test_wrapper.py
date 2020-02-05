@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 from core import MultiEnv
-from core.preprocessing.wrappers import RGB2Gray, FrameStack, StatisticsUnique
+from core.preprocessing.wrappers import *
 
 
 class TestMultiEnvWrapper(unittest.TestCase):
@@ -67,6 +67,46 @@ class TestMultiEnvWrapper(unittest.TestCase):
                              "Wrong reward  numbers")
             self.assertEqual(True, np.array_equal(np.zeros(instances), stats['steps']),
                              "Wrong steps number")
+
+    def test_rescaling(self):
+        for key in self.keys:
+            # Required for next wrapper
+            env = RGB2Gray(getattr(self, key))
+            env = RescalingGray(env, new_shape=(128, 128))
+
+            images = env.reset()['rgb']
+            instances = sum(self.setups[key].values())
+            self.assertEqual((instances, 128, 128), images.shape, "Shape mismatch")
+
+    def test_motion_tracer(self):
+        for key in self.keys:
+            # Required for next wrapper
+            env = MotionTracer(getattr(self, key))
+
+            images = env.reset()['rgb']
+            instances = sum(self.setups[key].values())
+            self.assertEqual((instances, 64, 64, 3, 2), images.shape, "Shape mismatch")
+
+    def test_motion_tracer_gray(self):
+        for key in self.keys:
+            # Required for next wrapper
+            env = RGB2Gray(getattr(self, key))
+            env = MotionTracer(env)
+
+            images = env.reset()['rgb']
+            instances = sum(self.setups[key].values())
+            self.assertEqual((instances, 64, 64, 2), images.shape, "Shape mismatch")
+
+    def test_motion_tracer_rescale_gray(self):
+        for key in self.keys:
+            # Required for next wrapper
+            env = RGB2Gray(getattr(self, key))
+            env = RescalingGray(env, new_shape=(128, 128))
+            env = MotionTracer(env)
+
+            images = env.reset()['rgb']
+            instances = sum(self.setups[key].values())
+            self.assertEqual((instances, 128, 128, 2), images.shape, "Shape mismatch")
 
 
 if __name__ == '__main__':

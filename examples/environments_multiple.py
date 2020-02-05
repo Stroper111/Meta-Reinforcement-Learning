@@ -61,7 +61,7 @@ def multiple_diff_env():
 
 
 if __name__ == '__main__':
-    # multiple_same_env()
-    # multiple_diff_env()
+    multiple_same_env()
+    multiple_diff_env()
 
     pass

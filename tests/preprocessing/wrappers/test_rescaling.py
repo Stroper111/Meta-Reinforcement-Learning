@@ -7,27 +7,32 @@ import os
 from PIL import Image
 from unittest.mock import Mock
 
-from core.preprocessing.wrappers.rgb2gray import RGB2Gray
+from core.preprocessing.wrappers.rescaling_gray import RescalingGray
 
 
-class TestRGB2Gray(unittest.TestCase):
+class TestRescaling(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.env = Mock()
-        cls.wrapper = RGB2Gray(cls.env)
+        cls.env.setup = dict(coinrun=12)
+        cls.new_shape = (200, 40)
+        cls.wrapper = RescalingGray(cls.env, new_shape=cls.new_shape)
 
         current_directory = os.path.dirname(os.path.abspath(__file__))
 
         with open(os.path.join(current_directory, "_original_images.pkl"), "rb") as file:
             cls.images = pickle.load(file)['rgb']
 
-        with open(os.path.join(current_directory, "_original_images_black.pkl"), "rb") as file:
+        with open(os.path.join(current_directory, "_original_images_rescale.pkl"), "rb") as file:
             cls.image_processed = pickle.load(file)
 
     def test_process(self):
-        black = self.wrapper.process(self.images)
-        image = np.reshape(black, newshape=(64 * 3, 64 * 4))
+        gray = self._rgb2_gray(self.images)
+        rescaled = self.wrapper.process(gray)
+        x, y = self.new_shape
+        image = np.reshape(rescaled, newshape=(x * 3, y * 4))
+        self.assertEqual((x * 3, y * 4), image.shape, "Processed image shape is not correct")
         self.assertEqual(True, np.array_equal(self.image_processed, image), "Processed image is not the same as stored")
 
     def _show_saved_image(self):
@@ -42,6 +47,10 @@ class TestRGB2Gray(unittest.TestCase):
         img.show()
         time.sleep(wait_time)
         img.close()
+
+    def _rgb2_gray(self, img):
+        gray = np.einsum("ijkl, l -> ijk", img, np.array([0.2126, 0.7152, 0.00722]))
+        return gray
 
 
 if __name__ == '__main__':

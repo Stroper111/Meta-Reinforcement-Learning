@@ -10,8 +10,8 @@ class FrameStack(BaseWrapper):
 
     def __init__(self, env, stack=4):
         super().__init__(env)
-        self.stack = stack
-        self.frames = [deque([], maxlen=self.stack) for _ in range(self.env.instances)]
+        self._stack = stack
+        self._frames = [deque([], maxlen=self._stack) for _ in range(self.env.instances)]
 
     def reset(self):
         img = self.env.reset()['rgb']
@@ -21,18 +21,18 @@ class FrameStack(BaseWrapper):
     def step(self, actions):
         images, reward, done, info = self.env.step(actions)
         images = np.expand_dims(images['rgb'], axis=1)
-        for id, image in enumerate(images):
-            self.frames[id].append(image)
+        for idx, image in enumerate(images):
+            self._frames[idx].append(image)
         return dict(rgb=self._get_images()), reward, done, info
 
     def _create_stacks(self, images):
         images = np.expand_dims(images, axis=1)
-        for id, image in enumerate(images):
-            for _ in range(self.stack):
-                self.frames[id].append(image)
+        for idx, image in enumerate(images):
+            for _ in range(self._stack):
+                self._frames[idx].append(image)
 
     def _get_images(self):
-        return [LazyFrames(list(frames)) for frames in self.frames]
+        return [LazyFrames(list(frames)) for frames in self._frames]
 
 
 class LazyFrames(object):
