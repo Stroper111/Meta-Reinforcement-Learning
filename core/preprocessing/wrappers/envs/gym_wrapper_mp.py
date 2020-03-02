@@ -16,7 +16,7 @@ import multiprocessing as mp
 from typing import List
 from collections import namedtuple
 
-from .base import BaseGymWrapper
+from .gym_base import BaseGymWrapper
 
 
 class GymWrapperMP(BaseGymWrapper):

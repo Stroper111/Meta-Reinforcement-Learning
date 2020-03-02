@@ -4,7 +4,7 @@ import numpy as np
 from typing import List
 from collections import namedtuple
 
-from .base import BaseGymWrapper
+from .gym_base import BaseGymWrapper
 
 
 class GymWrapper(BaseGymWrapper):
