@@ -28,12 +28,12 @@ class MotionTracer(BaseWrapper):
 
     def step(self, action):
         img, *args = self.env.step(action)
-        img = self.process(img['rgb'])
-        return (dict(rgb=img), *args)
+        img = self.process(img)
+        return (img, *args)
 
     def reset(self):
         self._setup = False
-        return dict(rgb=self.process(self.env.reset()['rgb']))
+        return self.process(self.env.reset())
 
     def process(self, images: np.array):
         if not self._setup:

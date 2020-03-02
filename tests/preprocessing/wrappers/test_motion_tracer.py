@@ -15,10 +15,10 @@ class TestMotionTracer(unittest.TestCase):
     def setUpClass(cls) -> None:
         current_directory = os.path.dirname(os.path.abspath(__file__))
 
-        with open(os.path.join(current_directory, "_original_images.pkl"), "rb") as file:
+        with open(os.path.join(current_directory, "data", "_original_images.pkl"), "rb") as file:
             cls.images = pickle.load(file)['rgb']
 
-        with open(os.path.join(current_directory, "_original_images_motion_traced.pkl"), "rb") as file:
+        with open(os.path.join(current_directory, "data", "_original_images_motion_traced.pkl"), "rb") as file:
             cls.image_processed = pickle.load(file)
 
     def setUp(self) -> None:

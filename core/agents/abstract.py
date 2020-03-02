@@ -1,4 +1,8 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from typing import Union
+
+from core import MultiEnv
+from core.preprocessing.wrappers import BaseWrapper
 
 
 class AbstractAgent(ABC):
@@ -9,7 +13,9 @@ class AbstractAgent(ABC):
             A dictionary containing as key the game name and as value the
             number of instances of the game.
     """
+    env: Union[MultiEnv, BaseWrapper]
 
+    @abstractmethod
     def __init__(self, setup: dict):
         pass
 
@@ -19,5 +25,6 @@ class AbstractAgent(ABC):
     def __repr__(self):
         return str(self)
 
+    @abstractmethod
     def run(self):
         pass

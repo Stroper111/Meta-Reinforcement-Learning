@@ -1,21 +1,20 @@
-from __future__ import annotations
-
+import gym
+import procgen
 import numpy as np
 
+from typing import Union
 from abc import abstractmethod
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from core import MultiEnv
 
-class BaseWrapper:
+class BaseGymWrapper:
     """
         Wrapper for processing environment images from the MultiEnv
     """
+    env: gym.Env
 
     @abstractmethod
-    def __init__(self, env: MultiEnv, *args, **kwargs):
-        self.env = env
+    def __init__(self, *args, **kwargs):
+        pass
 
     def __getattr__(self, name):
         return getattr(self.env, name)

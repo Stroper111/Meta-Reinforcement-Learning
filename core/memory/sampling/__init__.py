@@ -1,5 +1,2 @@
-from .base_multi_env import BaseSamplingMultiEnv
-from .base_gym import BaseSamplingGym
-
-
-__all__ = ['BaseSamplingMultiEnv', 'BaseSamplingGym']
+from .abstract import AbstractSampling
+from .base import BaseSampling
