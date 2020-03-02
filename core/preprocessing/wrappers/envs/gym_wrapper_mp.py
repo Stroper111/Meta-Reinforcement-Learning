@@ -16,10 +16,10 @@ import multiprocessing as mp
 from typing import List
 from collections import namedtuple
 
-from core.preprocessing.wrappers import BaseWrapper
+from .base import BaseGymWrapper
 
 
-class GymWrapperMP(BaseWrapper):
+class GymWrapperMP(BaseGymWrapper):
     """ Converter for gym to MultiEnv """
     _step = namedtuple("step", ("img", "reward", "done", "info"))
 

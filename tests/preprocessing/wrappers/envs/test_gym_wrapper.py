@@ -1,6 +1,6 @@
 import unittest
 
-from core.preprocessing.wrappers import GymWrapper
+from core.preprocessing.wrappers.envs import GymWrapper
 
 
 class TestGymWrapper(unittest.TestCase):
