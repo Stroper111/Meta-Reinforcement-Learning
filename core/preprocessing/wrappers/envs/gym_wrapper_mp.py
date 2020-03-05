@@ -79,16 +79,16 @@ class GymWrapperMP(BaseGymWrapper):
         results = [self._step(*remote.recv()) for remote in self.conn_parents]
 
         # Merge all results (zip is its own inverse)
-        results = self._step(*zip(*results))
-
-        # Convert to arrays
-        results = self._step(*[np.array(each) for each in results])
-
-        # Reset all environments that are done
+        results = self._step(*[np.stack(each) for each in zip(*results)])
         results = self._reset_done(results)
 
+        # This handles 1D environments.
+        images = results.img
+        if images.ndim == 1:
+            images = np.expand_dims(images, axis=1)
+
         # Return the results (this is more explicit than results)
-        return results.img, results.reward, results.done, results.info
+        return images, results.reward, results.done, results.info
 
     def step(self, actions: np.array) -> (np.array, np.array, np.array, np.array):
         self.step_async(actions)
