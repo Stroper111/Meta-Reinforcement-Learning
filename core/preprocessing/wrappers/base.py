@@ -1,20 +1,12 @@
-from __future__ import annotations
-
 import numpy as np
 
-from abc import abstractmethod
-
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from core import MultiEnv
 
 class BaseWrapper:
     """
         Wrapper for processing environment images from the MultiEnv
     """
 
-    @abstractmethod
-    def __init__(self, env: MultiEnv, *args, **kwargs):
+    def __init__(self, env, *args, **kwargs):
         self.env = env
 
     def __getattr__(self, name):
@@ -29,6 +21,10 @@ class BaseWrapper:
     @property
     def spec(self):
         return self.env.spec
+
+    @property
+    def unwrapped(self):
+        return self.env.unwrapped
 
     @classmethod
     def class_name(cls):
@@ -48,10 +44,3 @@ class BaseWrapper:
 
     def seed(self, seed=None):
         return self.env.seed(seed)
-
-    @property
-    def unwrapped(self):
-        return self.env.unwrapped
-
-    def process(self, img: np.array):
-        raise NotImplementedError

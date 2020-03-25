@@ -4,12 +4,12 @@ from keras.models import Sequential
 from keras.layers import Embedding, Reshape, Dense
 from keras.optimizers import Adam
 
-from core.models import BaseKerasModel
+from core.models.extern import BaseModelKeras
 
 
-class TaxiKerasModel(BaseKerasModel):
+class TaxiModel(BaseModelKeras):
     @staticmethod
-    def create_model(input_shape, output_shape):
+    def create_model(input_shape, output_shape, *args, **kwargs):
         model = Sequential()
         model.add(Embedding(500, 6, input_length=input_shape))
         model.add(Reshape((6,)))
@@ -21,9 +21,9 @@ class TaxiKerasModel(BaseKerasModel):
         return model
 
 
-class TaxiKerasModelEmbedding(BaseKerasModel):
+class TaxiModelEmbedding(BaseModelKeras):
     @staticmethod
-    def create_model(input_shape, output_shape):
+    def create_model(input_shape, output_shape, *args, **kwargs):
         model = Sequential()
         model.add(Embedding(500, 6, input_length=input_shape))
         model.add(Reshape((6 * input_shape,)))

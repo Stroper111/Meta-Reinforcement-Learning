@@ -2,13 +2,13 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 
-from core.models import BaseKerasModel
+from core.models.extern import BaseModelKeras
 
 
-class CartPoleKerasModel(BaseKerasModel):
+class CartPoleModel(BaseModelKeras):
 
     @staticmethod
-    def create_model(input_shape, output_shape):
+    def create_model(input_shape, output_shape, *args, **kwargs):
         """ Creates the model.  """
         model = Sequential([
             Dense(input_shape=input_shape,

@@ -5,6 +5,10 @@
 # Model training
 pretrained/
 
+!core/models/intern
+!core/models/extern
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

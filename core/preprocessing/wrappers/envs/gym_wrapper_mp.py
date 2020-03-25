@@ -40,7 +40,9 @@ class GymWrapperMP(BaseGymWrapper):
         self.processes = self._create_processes(self.conn_children, self.conn_parents, self._envs)
 
         # Set daemons, in case parent stops, all children get's terminated
-        for process in self.processes:
+        for idx, process in enumerate(self.processes, start=1):
+            print("\rSpinning up child processes... {:2d}/{:2d}".format(idx, self.instances),
+                  flush=True, end='' if idx != self.instances else ' DONE\n')
             process.daemon = True
             process.start()
 
@@ -97,7 +99,13 @@ class GymWrapperMP(BaseGymWrapper):
     def reset(self) -> np.array:
         for remote in self.conn_parents:
             remote.send(('reset',))
-        return np.vstack([remote.recv() for remote in self.conn_parents])
+
+        images = np.stack([remote.recv() for remote in self.conn_parents])
+
+        # This handles 1D environments.
+        if images.ndim == 1:
+            images = np.expand_dims(images, axis=1)
+        return images
 
     def render(self):
         for remote in self.conn_parents:

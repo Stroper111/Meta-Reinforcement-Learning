@@ -4,8 +4,8 @@ import numpy as np
 from core.agents import AbstractAgent
 
 from core import MultiEnv
-from core.agents.cartpole.model import CartPoleKerasModel
-from core.memory import BaseMemoryNumpy
+from core.agents.cartpole.model import CartPoleModel
+from core.memory import BaseMemoryNumpy, BaseMemoryDeque
 from core.memory.sampling import BaseSampling
 from core.preprocessing.wrappers import UnpackVec
 
@@ -16,14 +16,14 @@ class CartPole(AbstractAgent):
         self.instances = sum(setup.values())
 
         self.env = UnpackVec(MultiEnv(setup))
-        self.model = CartPoleKerasModel(input_shape=(4,), output_shape=2)
+        self.model = CartPoleModel(input_shape=(4,), output_shape=2)
+        # self.memory = BaseMemoryDeque(size=1_000_000)
         self.memory = BaseMemoryNumpy(size=1_000_000, shape=(4,), action_space=2, stacked_frames=False)
         self.sampler = BaseSampling(self.memory, self.model, gamma=0.95, alpha=0.1, batch_size=20)
 
         # Now possible to load model using these examples:
-        self.model.create_save_directory(agent_name=self.__class__.__name__, game_name='cartpole', custom_name="")
-
         # Note that custom name has to be the loading directory.
+        self.model.create_save_directory(agent_name=self.__class__.__name__, game_name='cartpole', custom_name="")
         # self.model.load_checkpoint(load_name='last')
 
     def run(self):
@@ -57,15 +57,10 @@ class CartPole(AbstractAgent):
 
             if episode % msg_interval == 0:
                 scoring = ', '.join(map(lambda score: '%4d' % score, scores))
+                # self.model.save_checkpoint(model=self.model, save_name="episode %4d" % episode)
                 print("\rEpisode: %4d, score: %s" % (episode, scoring), flush=False)
 
-                # self.model.save_checkpoint(model=self.model, save_name="episode %4d" % episode)
-
         # self.model.save_model(save_name="episode %4d" % episode)
-
-    @staticmethod
-    def _current_time():
-        return time.strftime('%Y-%b-%d-%a_%H.%M.%S')
 
 
 if __name__ == '__main__':

@@ -1,14 +1,12 @@
 
-# Meta Reinforcement Learning
+# AI Framework
 
-This is a framework for building a meta reinforcement learning agent on the gym and procgen environment from OpenAI.
-
-Supported packages:
-- OpenAI: [gym](https://github.com/openai/gym)
-- OpenAI: [procgen](https://github.com/openai/procgen)
+Our (horrible) attempt of creating AI, it supports the following packages:
+- OpenAI: gym
+- OpenAI: procgen
 
 
-## Install gym atari on windows
+## Install gym on windows
 
 To test if you have atari gym installed follow the following procedure in Pycharms 'Python console', which is located at the bottom of Pycharm.
 

@@ -4,7 +4,7 @@ import random
 from core.agents import AbstractAgent
 
 from core import MultiEnv
-from core.agents.taxi.model import TaxiKerasModel, TaxiKerasModelEmbedding
+from core.agents.taxi.model import TaxiModel, TaxiModelEmbedding
 from core.memory import BaseMemoryNumpy, BaseMemoryDeque
 from core.memory.sampling import BaseSampling
 
@@ -15,7 +15,7 @@ class Taxi(AbstractAgent):
         self.instances = sum(setup.values())
 
         self.env = MultiEnv(setup, use_multiprocessing=True)
-        self.model = TaxiKerasModelEmbedding(input_shape=1, output_shape=6)
+        self.model = TaxiModelEmbedding(input_shape=1, output_shape=6)
         self.memory = BaseMemoryDeque(size=500_000)
         # self.memory = BaseMemoryNumpy(size=1_000_000, shape=(1,), action_space=6, stacked_frames=False)
         self.sampler = BaseSampling(self.memory, self.model, gamma=0.99, alpha=0.1, batch_size=200)
