@@ -39,8 +39,8 @@ class BaseGymWrapper:
     def reset(self):
         return self.env.reset()
 
-    def render(self):
-        return self.env.render()
+    def render(self, *args, **kwargs):
+        return self.env.render(*args, **kwargs)
 
     def close(self):
         return self.env.close()
