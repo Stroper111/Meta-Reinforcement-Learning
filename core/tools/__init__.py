@@ -1,6 +1,2 @@
-from .multi_env import MultiEnv
-from .controller import Scheduler
+from .controller import Controller
 from .scheduler import LinearControlSignal, EpsilonGreedy
-
-__all__ = ['MultiEnv', 'Scheduler',
-           'LinearControlSignal', 'EpsilonGreedy']

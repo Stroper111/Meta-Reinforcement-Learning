@@ -74,7 +74,7 @@ class EpisodeStatistics(BaseWrapper):
 
     def summary(self) -> dict:
         """ Return a concise summary of overall game state.  """
-        return dict(episode=self.total_episodes, step=self.total_steps, time=time.time() - self.start_time)
+        return dict(episode=self.total_episodes, steps=self.total_steps, time=time.time() - self.start_time)
 
     def _convert_time(self):
         """ Convert seconds to a human readable format.  """

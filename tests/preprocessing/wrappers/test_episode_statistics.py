@@ -34,6 +34,8 @@ class TestMultiEnv(unittest.TestCase):
                 self.assertEqual(step * 2, self.wrapper.episode_return[idx], 'Incorrect reward score')
                 self.assertEqual(step, self.wrapper.episode_length[idx], 'Incorrect number of steps')
 
+        self.assertEqual(9 * self.instances, self.wrapper.total_steps, "Incorrect total number of steps.")
+
     def test_reset(self):
         self.wrapper.reset()
 
