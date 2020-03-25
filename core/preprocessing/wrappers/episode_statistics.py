@@ -16,6 +16,8 @@ class EpisodeStatistics(BaseWrapper):
         self.instances = env.instances
 
         self.total_episodes = 0
+        self.total_steps = 0
+
         self.start_time = time.time()
         self.game_time: list = [time.time() for _ in range(self.instances)]
 
@@ -31,6 +33,7 @@ class EpisodeStatistics(BaseWrapper):
 
         self.episode_return += reward
         self.episode_length += 1
+        self.total_steps += self.instances
 
         for idx in np.where(done)[0]:
             info[idx]['episode'] = {'r': self.episode_return[idx],
@@ -68,6 +71,10 @@ class EpisodeStatistics(BaseWrapper):
         for stat, values, func in [('Avg reward', self.return_queue, np.mean),
                                    ('Avg steps', self.length_queue, np.mean)]:
             print(f"\t{stat.ljust(15)}{''.join(['{:15,.2f}'.format(func(value)) for value in values])}")
+
+    def summary(self) -> dict:
+        """ Return a concise summary of overall game state.  """
+        return dict(episode=self.total_episodes, step=self.total_steps, time=time.time() - self.start_time)
 
     def _convert_time(self):
         """ Convert seconds to a human readable format.  """
