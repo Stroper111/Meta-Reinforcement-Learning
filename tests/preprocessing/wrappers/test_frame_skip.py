@@ -45,13 +45,12 @@ class TestFrameStack(unittest.TestCase):
             self.assertEqual((self.instances,), done.shape, "Different done shape than expected.")
             self.assertEqual((self.instances,), info.shape, "Different info shape than expected.")
 
-    # TODO Finalize
     def test_done(self):
         """ Checks the skipping of frames on reset.  """
         self.wrapper.env.step = self._step
         img = self.wrapper.reset()
-        self.assertEqual(True, False)
-        
+        self.assertEqual(4, self.wrapper._frame_counter)
+
     def _step(self, action):
         img = np.ones(self.instances) * self.frame_counter
         reward = np.ones(self.instances) * self.frame_counter

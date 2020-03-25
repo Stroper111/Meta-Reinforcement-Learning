@@ -58,6 +58,7 @@ class EpisodeStatistics(BaseWrapper):
         self.episode_return = np.zeros((self.instances,), np.float32)
         self.episode_length = np.zeros((self.instances,), np.int)
         self.total_episodes = 0
+        self.total_steps = 0
 
         return observation
 
