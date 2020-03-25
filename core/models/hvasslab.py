@@ -11,6 +11,7 @@ from collections import deque
 from core.models import BaseModel
 
 
+# TODO Rebuild
 class HvassLab(BaseModel):
     def __init__(self, input_shape, action_space, epsilon=0.05):
         self.input_shape = input_shape

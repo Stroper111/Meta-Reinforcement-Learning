@@ -14,16 +14,16 @@ class FrameStack(BaseWrapper):
         self._frames = [deque([], maxlen=self._stack) for _ in range(self.env.instances)]
 
     def reset(self):
-        img = self.env.reset()['rgb']
+        img = self.env.reset()
         self._create_stacks(img)
-        return dict(rgb=self._get_images())
+        return self._get_images()
 
     def step(self, actions):
         images, reward, done, info = self.env.step(actions)
-        images = np.expand_dims(images['rgb'], axis=1)
+        images = np.expand_dims(images, axis=1)
         for idx, image in enumerate(images):
             self._frames[idx].append(image)
-        return dict(rgb=self._get_images()), reward, done, info
+        return self._get_images(), reward, done, info
 
     def _create_stacks(self, images):
         images = np.expand_dims(images, axis=1)

@@ -1,13 +1,14 @@
 import time
 import numpy as np
 
-from core.preprocessing.wrappers import StatisticsUnique
+from core.preprocessing.wrappers import EpisodeStatistics
 
 
+# TODO Rebuild
 class Scheduler:
     """
         This class handles when to print summaries or terminate the Agent.
-        This class works together with the Statistics class.
+        This class works together with the EpisodeStatistics class.
     """
 
     def __init__(self, env, episode_limit=np.uint(-1), step_limit=np.uint(-1), time_limit=np.uint(-1),
@@ -16,10 +17,6 @@ class Scheduler:
 
         self.env = env
         self.added_temp = False
-        if not hasattr(self.env, 'scheduler'):
-            self.added_temp = True
-            assert save_dir is not None, "The Statistic Wrapper wasn't used, require a save directory."
-            self.env = StatisticsUnique(self.env, save_dir=save_dir)
 
         if episode_update >= episode_limit:
             episode_update = episode_limit

@@ -18,7 +18,7 @@ class TestFrameStack(unittest.TestCase):
 
         current_directory = os.path.dirname(os.path.abspath(__file__))
 
-        with open(os.path.join(current_directory, "_original_images.pkl"), "rb") as file:
+        with open(os.path.join(current_directory, "data", "_original_images.pkl"), "rb") as file:
             cls.images = pickle.load(file)['rgb']
 
     def test_stacking(self):

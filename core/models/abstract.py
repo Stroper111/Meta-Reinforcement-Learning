@@ -1,11 +1,7 @@
 import numpy as np
-import keras
 
 from abc import ABC, abstractmethod
-from typing import Union, Any
-
-from keras import Sequential, Input
-from core.memory import BaseSamplingMultiEnv
+from typing import Any, Union
 
 
 class AbstractModel(ABC):
@@ -14,7 +10,7 @@ class AbstractModel(ABC):
 
         input_shape:
             The input shape for the model
-        action_space:
+        output_shape:
             The output shape of the model
         setup:
             A dictionary containing all setup information
@@ -22,16 +18,26 @@ class AbstractModel(ABC):
             optimizer: name = optimizer settings
             compile: name = value (except the optimizer)
     """
-    model: keras.models
+    model: Any
 
-    def __init__(self, input_shape: Union[tuple, list], action_space: int):
+    def __init__(self,
+                 input_shape: Union[tuple, list, int],
+                 output_shape: Union[tuple, list, int],
+                 *args, **kwargs):
         pass
 
     @staticmethod
     @abstractmethod
-    def create_model(input_shape: Union[tuple, list], action_space: int) -> keras.models:
+    def create_model(input_shape: Union[tuple, list],
+                     output_shape: Union[tuple, list, int],
+                     *args, **kwargs
+                     ) -> Any:
         """ Creates the model.  """
         pass
+
+    @property
+    def W1(self):
+        return None
 
     @abstractmethod
     def predict(self, states) -> np.array:
@@ -40,30 +46,30 @@ class AbstractModel(ABC):
 
     @abstractmethod
     def actions(self, states) -> np.array:
-        """ Return the action to execute, this can be combined with epsilon.  """
+        """ Return the actions to execute, this can be combined with epsilon.  """
         pass
 
     @abstractmethod
-    def train(self, sampling: BaseSamplingMultiEnv):
+    def train(self, x: np.array, y: np.array):
         """ Trains a model on the sampling.  """
         pass
 
     @abstractmethod
-    def save_model(self, save_dir: str, episode, steps):
-        """ Store the model to a file.  """
-        pass
-
-    @abstractmethod
-    def save_checkpoint(self, save_dir: str, episode, steps):
+    def save_checkpoint(self, save_name: str, *args, **kwargs):
         """ Store the model and metadata to continue a training session.  """
         pass
 
     @abstractmethod
-    def load_model(self, load_dir: str):
-        """ Load a keras model.   """
+    def save_model(self, save_name: str, *args, **kwargs):
+        """ Store the model to a file.  """
         pass
 
     @abstractmethod
-    def load_checkpoint(self, load_dir: str):
+    def load_checkpoint(self, load_name: str, *args, **kwargs) -> str:
         """ Continues a training run from the checkpoint.  """
+        pass
+    
+    @abstractmethod
+    def load_model(self, load_name: str, *args, **kwargs) -> str:
+        """ Load a keras model.   """
         pass

@@ -1,46 +1,45 @@
-# Meta Reinforcement Learning
 
-This is a framework for building  a meta reinforcement learning agent on the 
-[procgen](https://github.com/openai/procgen) environment from OpenAI.
+# AI Framework
+
+Our (horrible) attempt of creating AI, it supports the following packages:
+- OpenAI: gym
+- OpenAI: procgen
 
 
-## Framework layout
+## Install gym on windows
 
+To test if you have atari gym installed follow the following procedure in Pycharms 'Python console', which is located at the bottom of Pycharm.
+
+If you do not have Pycharm go to your venv and run ```python```, followed by these commands:
+
+```` 
+import gym
+env = gym.make("Pong-v0')
+````
+
+If this gave no errors you are done and can skip the remaining part.
+
+If you are using Ubuntu/Linux you can use the following command and skip the remaining of this explanation (do this in the terminal). 
+
+```text
+$ pip install gym[atari]
 ```
-├───core
-│   ├───agents
-│   ├───memory
-│   │   ├───sampling
-│   ├───models
-│   ├───preprocessing
-│   │   ├───wrappers
-│   ├───tools
-├───examples
-├───references
-└───tests
+
+For Windows users, this won't work most of the time due to the _cmake_ package not being available for windows user. So for this we need to install [Visual Studio](https://visualstudio.microsoft.com/downloads/).
+
+You can simply install the community version for free. When continuing the install make sure to select C++ Build tools for Windows development.  In case you missed it you can install [vs buildtools.exe](https://aka.ms/vs/16/release/vs_buildtools.exe) and use that to install it. Note: this will take about 5GB, being a data scientist this is still a small investment.
+
+Now use the following commands to install all environments of gym: (don't forget to check that you are on your venv.)
+```text
+pip install gym
+pip install git+https://github.com/Kojoley/atari-py.git
+pip install gym[atari]
 ```
 
-## Framework usage
 
-Currently there are three agents implemented, 'default', 'gym', 'hvasslab'. 
-The 'default' agent can handle multiple games from the procgen environment, the 
-'gym' and 'hvasslab' are build for interfacing with the gym environment. 
+## PyTorch
+- [Download link](https://pytorch.org/get-started/locally/)
 
-The games and instances can be entered as a dictionary directly in the program 
-or as a list in the terminal, when no number of instances is given this is 
-interpreted as 1.
-
-```cmd
-python main.py --agent default --setup coinrun 1 bigfish 1
-python main.py --agent default --setup coinrun bigfish
-```
-# References
-
-## OpenAI procgen
-```
-@article{cobbe2019procgen,
-  title={Leveraging Procedural Generation to Benchmark Reinforcement Learning},
-  author={Cobbe, Karl and Hesse, Christopher and Hilton, Jacob and Schulman, John},
-  year={2019}
-}
-```
+## Tensorflow
+- Upgrade setuptools (`pip install setuptools --upgrade`)
+- [Download link](https://www.tensorflow.org/install/gpu)

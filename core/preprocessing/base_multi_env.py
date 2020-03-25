@@ -1,7 +1,7 @@
 from core.preprocessing import AbstractPreProcessing
 
 from core.tools import MultiEnv
-from core.preprocessing.wrappers import RGB2Gray, FrameStack, StatisticsUnique
+from core.preprocessing.wrappers import RGB2Gray, FrameStack
 
 
 class BasePreProcessingMultiEnv(AbstractPreProcessing):
@@ -28,10 +28,6 @@ class BasePreProcessingMultiEnv(AbstractPreProcessing):
         if frame_stack and frame_stack > 0:
             assert isinstance(frame_stack, int), "The number has to be an integer"
             self.env = FrameStack(self.env, stack=frame_stack)
-
-        if statistics:
-            assert save_dir is not None, "Need a saving directory for statistics."
-            self.env = StatisticsUnique(self.env, history_size=history_size, save_dir=save_dir)
 
     def input_shape(self):
         """ Calculate input shape.  """

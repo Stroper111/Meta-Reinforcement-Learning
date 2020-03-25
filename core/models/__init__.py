@@ -1,7 +1,9 @@
 from .abstract import AbstractModel
 from .base import BaseModel
-from .base_gym import BaseModelGym
-from .hvasslab import HvassLab
 
-__all__ = ['AbstractModel', 'BaseModel', 'BaseModelGym',
-           'HvassLab']
+# External models (these are dependent on external packages)
+# We do not auto import external models due to reloading with multiprocessing.
+# Every model is reloaded when using multiprocessing.
+
+# Internal models
+from core.models.intern import BaseModelPG

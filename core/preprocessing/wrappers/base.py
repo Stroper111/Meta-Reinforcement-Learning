@@ -1,8 +1,4 @@
-import gym
 import numpy as np
-
-from typing import Union
-from core.tools import MultiEnv
 
 
 class BaseWrapper:
@@ -10,7 +6,7 @@ class BaseWrapper:
         Wrapper for processing environment images from the MultiEnv
     """
 
-    def __init__(self, env: Union[MultiEnv, gym.Env, 'BaseWrapper']):
+    def __init__(self, env, *args, **kwargs):
         self.env = env
 
     def __getattr__(self, name):
@@ -25,6 +21,10 @@ class BaseWrapper:
     @property
     def spec(self):
         return self.env.spec
+
+    @property
+    def unwrapped(self):
+        return self.env.unwrapped
 
     @classmethod
     def class_name(cls):
@@ -44,10 +44,3 @@ class BaseWrapper:
 
     def seed(self, seed=None):
         return self.env.seed(seed)
-
-    @property
-    def unwrapped(self):
-        return self.env.unwrapped
-
-    def process(self, img: np.array):
-        raise NotImplementedError

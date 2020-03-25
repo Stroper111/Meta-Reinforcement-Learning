@@ -27,6 +27,7 @@ with Suppressor():
     from core.models import BaseModel
 
 
+# TODO Rebuild
 class TestSimpleModel(unittest.TestCase):
 
     @classmethod
