@@ -7,6 +7,7 @@ from core.preprocessing.wrappers import *
 
 
 class TestMultiEnvWrapper(unittest.TestCase):
+    full_path_directory = None
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -14,7 +15,7 @@ class TestMultiEnvWrapper(unittest.TestCase):
         setup_two = dict(coinrun=6)
         setup_three = dict(coinrun=2, bigfish=2, chaser=2)
         cls.setups = dict(env_one=setup_one, env_two=setup_two, env_three=setup_three)
-        cls.keys = ['env_one', 'env_two', 'env_three']
+        cls.keys = list(cls.setups)
 
         cls.current_directory = os.path.dirname(os.path.abspath(__file__))
         cls.full_path_directory = os.path.join(cls.current_directory, "temp")
@@ -50,7 +51,12 @@ class TestMultiEnvWrapper(unittest.TestCase):
                 self.assertEqual(True, np.max(images) <= 255, "Images can have bigger values than 255")
                 self.assertEqual(True, np.min(images) >= 0, "Image values can become negative. ")
 
-    # TODO Retest statistics.
+    def test_statistics(self):
+        for key in self.keys:
+            env = EpisodeStatistics(getattr(self, key))
+
+            env.reset()
+            env.statistics()
 
     def test_rescaling(self):
         for key in self.keys:
