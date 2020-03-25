@@ -5,7 +5,7 @@ import numpy as np
 from core import MultiEnv
 from core.tools import Controller
 
-# TODO Rebuild
+
 class TestMultiEnv(unittest.TestCase):
 
     def setUp(self):
