@@ -1,7 +1,6 @@
 import numpy as np
 
 
-# TODO Rebuild
 class ReplayMemoryHvassLab:
     """
         The replay-memory holds many previous states of the game-environment.

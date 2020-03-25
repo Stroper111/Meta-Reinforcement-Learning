@@ -6,18 +6,14 @@ from typing import Any, Union
 
 class AbstractModel(ABC):
     """
-        Implements a Neural Network using keras
+        Basic interface for any model.
 
         input_shape:
             The input shape for the model
         output_shape:
             The output shape of the model
-        setup:
-            A dictionary containing all setup information
-            layers: layer name = layer settings
-            optimizer: name = optimizer settings
-            compile: name = value (except the optimizer)
     """
+
     model: Any
 
     def __init__(self,
@@ -30,14 +26,9 @@ class AbstractModel(ABC):
     @abstractmethod
     def create_model(input_shape: Union[tuple, list],
                      output_shape: Union[tuple, list, int],
-                     *args, **kwargs
-                     ) -> Any:
+                     *args, **kwargs) -> Any:
         """ Creates the model.  """
         pass
-
-    @property
-    def W1(self):
-        return None
 
     @abstractmethod
     def predict(self, states) -> np.array:
@@ -46,12 +37,12 @@ class AbstractModel(ABC):
 
     @abstractmethod
     def actions(self, states) -> np.array:
-        """ Return the actions to execute, this can be combined with epsilon.  """
+        """ Return the actions to execute.  """
         pass
 
     @abstractmethod
     def train(self, x: np.array, y: np.array):
-        """ Trains a model on the sampling.  """
+        """ Trains a model.  """
         pass
 
     @abstractmethod
@@ -71,5 +62,5 @@ class AbstractModel(ABC):
     
     @abstractmethod
     def load_model(self, load_name: str, *args, **kwargs) -> str:
-        """ Load a keras model.   """
+        """ Load a model.   """
         pass

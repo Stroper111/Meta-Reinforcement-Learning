@@ -56,9 +56,7 @@ class PolicyGradientsSampling(AbstractSampling, Sequence):
         if not isinstance(states, np.ndarray):
             states = np.vstack(states)
 
-        # TODO Initialize with zeros instead of redundant predictions
-        preds = self.model.predict(states)
-        targets = preds.copy()
+        targets = np.zeros((self.batch_size, self.model.output_shape))
 
         running_add = rewards[-1]
         disc_reward = 0

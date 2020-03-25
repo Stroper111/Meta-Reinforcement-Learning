@@ -15,6 +15,8 @@ class BaseModel(AbstractModel):
     dir_save: str = None
 
     model: Any
+    input_shape: tuple
+    output_shape: int
 
     def __init__(self, input_shape, output_shape, *args, **kwargs):
         super().__init__(input_shape, output_shape)
@@ -72,18 +74,19 @@ class BaseModel(AbstractModel):
         self._save_model(save_path)
 
     def load_model(self, load_name: str = 'last', *args, **kwargs) -> str:
+        """ This loads the model with given load name from the save directory.  """
         assert self.dir_load, "No loading directory found, initialize it before loading or run `create_save_directory`"
         load_path = self._get_files(dir_load=self.dir_load, load_name=load_name)
         return self._load_model(load_path)
 
     def save_checkpoint(self, save_name: str, *args, **kwargs):
-        """ This stores the model with given save name at the created directory.  """
+        """ This stores a model checkpoint with given save name at the created directory.  """
         assert self.dir_save, "No saving directory found, initialize it before loading or run `create_save_directory`"
         save_path = os.path.join(self.dir_save, self.checkpoint, save_name)
         self._save_model(save_path)
 
     def load_checkpoint(self, load_name: str = 'last', *args, **kwargs) -> str:
-        """ This loads the model with the given name at the created directory.  """
+        """ This loads a model checkpoint with given load name from the save directory.  """
         assert self.dir_load, "No loading directory found, initialize it before loading or run `create_save_directory`"
         dir_load = os.path.join(self.dir_load, self.checkpoint)
         save_path = self._get_files(dir_load=dir_load, load_name=load_name)

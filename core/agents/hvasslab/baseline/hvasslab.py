@@ -154,6 +154,7 @@
 # Copyright 2017 by Magnus Erik Hvass Pedersen
 #
 ########################################################################
+import pathlib
 
 import numpy as np
 import tensorflow as tf
@@ -173,10 +174,9 @@ import argparse
 # This should be done before you create the Agent and NeuralNetwork etc.
 
 
-# TODO Update path to pretrained folder.
 # Default base-directory for the checkpoints and log-files.
 # The environment-name will be appended to this.
-checkpoint_base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+checkpoint_base_dir = str(pathlib.Path(os.path.abspath(__file__)).parents[4])
 
 # Combination of base-dir and environment-name.
 checkpoint_dir = None
@@ -1208,8 +1208,6 @@ class NeuralNetwork:
 
         # Flatten output of the last convolutional layer so it can
         # be input to a fully-connected (aka. dense) layer.
-        # TODO: For some bizarre reason, this function is not yet in tf.layers
-        # TODO: net = tf.layers.flatten(net)
         net = tf.contrib.layers.flatten(net)
 
         # First fully-connected (aka. dense) layer.

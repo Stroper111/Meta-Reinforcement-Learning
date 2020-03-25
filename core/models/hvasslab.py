@@ -11,11 +11,12 @@ from collections import deque
 from core.models import BaseModel
 
 
-# TODO Rebuild
 class HvassLab(BaseModel):
-    def __init__(self, input_shape, action_space, epsilon=0.05):
+
+    def __init__(self, input_shape, output_shape, epsilon=0.05):
+        super().__init__(input_shape, output_shape)
         self.input_shape = input_shape
-        self.action_space = action_space
+        self.action_space = output_shape
 
         self.back_up_count = 2
         self.save_msg = "episode {:7,d} frames {:11,d} {:s}"
@@ -24,48 +25,50 @@ class HvassLab(BaseModel):
         # In hvasslab they use tf, which has an easier interface (for a change)
         self.optimizer = RMSprop(learning_rate=1e-3)
 
-        self.model = self.create_model(input_shape, action_space, self.optimizer)
+        self.model = self.create_model(input_shape, output_shape, self.optimizer)
         self.epsilon = epsilon
 
     @staticmethod
-    def create_model(input_shape, output_shape, optimizer):
+    def create_model(input_shape, output_shape, *args, **kwargs):
+        optimizer, *_ = args
+
         init = TruncatedNormal(mean=0, stddev=2e-2)
 
         model = Sequential(
-            [
-                Conv2D(input_shape=input_shape, name='layer_conv1',
-                       filters=16, kernel_size=3, strides=2,
-                       padding='same', kernel_initializer=init,
-                       activation='relu'),
+                [
+                    Conv2D(input_shape=input_shape, name='layer_conv1',
+                           filters=16, kernel_size=3, strides=2,
+                           padding='same', kernel_initializer=init,
+                           activation='relu'),
 
-                Conv2D(name='layer_conv2',
-                       filters=32, kernel_size=3, strides=2,
-                       padding='same', kernel_initializer=init,
-                       activation='relu'),
+                    Conv2D(name='layer_conv2',
+                           filters=32, kernel_size=3, strides=2,
+                           padding='same', kernel_initializer=init,
+                           activation='relu'),
 
-                Conv2D(name='layer_conv3',
-                       filters=64, kernel_size=3, strides=1,
-                       padding='same', kernel_initializer=init,
-                       activation='relu'),
+                    Conv2D(name='layer_conv3',
+                           filters=64, kernel_size=3, strides=1,
+                           padding='same', kernel_initializer=init,
+                           activation='relu'),
 
-                Flatten(),
+                    Flatten(),
 
-                Dense(name='layer_fc1', units=1024,
-                      kernel_initializer=init, activation='relu'),
+                    Dense(name='layer_fc1', units=1024,
+                          kernel_initializer=init, activation='relu'),
 
-                Dense(name='layer_fc2', units=1024,
-                      kernel_initializer=init, activation='relu'),
+                    Dense(name='layer_fc2', units=1024,
+                          kernel_initializer=init, activation='relu'),
 
-                Dense(name='layer_fc3', units=1024,
-                      kernel_initializer=init, activation='relu'),
+                    Dense(name='layer_fc3', units=1024,
+                          kernel_initializer=init, activation='relu'),
 
-                Dense(name='layer_fc4', units=1024,
-                      kernel_initializer=init, activation='relu'),
+                    Dense(name='layer_fc4', units=1024,
+                          kernel_initializer=init, activation='relu'),
 
-                # Linear is important for Q-values!
-                Dense(name='layer_fc_out', units=output_shape,
-                      kernel_initializer=init, activation='linear')
-            ]
+                    # Linear is important for Q-values!
+                    Dense(name='layer_fc_out', units=output_shape,
+                          kernel_initializer=init, activation='linear')
+                ]
         )
         model.compile(optimizer=optimizer, loss='mse')
         # model.summary()
@@ -75,6 +78,15 @@ class HvassLab(BaseModel):
         """ For this example we sample epsilon outside of the model.  """
         q_values = self.model.predict(states)
         return q_values
+
+    def predict(self, states):
+        return self.actions(states)
+
+    def train(self, x, y):
+        self.model.fit(x, y)
+
+    def _load_model(self, load_path: str, *args, **kwargs) -> str:
+        raise NotImplemented
 
     def optimize(self, replay_memory, min_epochs=1., max_epochs=10, batch_size=128, loss_limit=0.015,
                  learning_rate=1e-3):
@@ -94,7 +106,7 @@ class HvassLab(BaseModel):
         for iteration in range(iterations_max):
             batch_states, batch_q_values = replay_memory.batch_random()
             loss = self.model.fit(batch_states, batch_q_values, verbose=0).history['loss'][0]
-            loss = loss ** (0.5)
+            loss = loss ** 0.5
             loss_history.append(loss)
             loss_mean = sum(loss_history) / len(loss_history)
 
