@@ -20,7 +20,7 @@ if __name__ == '__main__':
     action = env.action_space.sample()
 
     # Executing an action returns a tuple of information
-    obs, reward, done, info = env.step(actions=action)
+    obs, reward, done, info = env.step(action=action)
 
     # To render an environment  (can be text or image, depending on environment)
     env.render()

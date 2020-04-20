@@ -49,13 +49,19 @@ class BaseModelPG(BaseModel):
     @staticmethod
     def create_model(input_shape, output_shape, *args, **kwargs):
         """ Creates the model, by adding layers together.  """
-        (first_layer, *hidden_layers), initialization, *_ = args
+        all_layers, initialization, *_ = args
 
         layers = []
-        layers.append(Layer("W0", input_shape=(first_layer, *input_shape), initialization=initialization))
+        # Append first
+        layers.append(Layer("W0", input_shape=(all_layers[0], *input_shape), initialization=initialization))
 
-        for idx, hidden_layer in enumerate(hidden_layers, start=1):
-            layers.append(Layer(name="W%d" % idx, input_shape=(hidden_layer,), initialization=initialization))
+        # Append intermediate layers
+        for name, index in enumerate(range(len(all_layers[:-1])), start=1):
+            input_shape = (all_layers[index + 1], all_layers[index])
+            layers.append(Layer(name="W%d" % name, input_shape=input_shape, initialization=initialization))
+
+        # Append last layer
+        layers.append(Layer(name="W%d" % len(layers), input_shape=(all_layers[-1],), initialization=initialization))
 
         return layers
 
@@ -75,7 +81,7 @@ class BaseModelPG(BaseModel):
         """ Return the predictions of your model.  """
         raise NotImplemented
 
-    def actions(self, states):
+    def act(self, states):
         """ Return the actions to execute, this can be combined with epsilon.  """
         raise NotImplemented
 
@@ -103,6 +109,33 @@ class BaseModelPG(BaseModel):
                 self.model = pickle.load(file)
             print(f"Successfully loaded model...\n\t{load_path}\n")
         return load_path
+
+    @staticmethod
+    def relu(weights: np.ndarray) -> np.ndarray:
+        weights[weights < 0] = 0
+        return weights
+
+    @staticmethod
+    def derivative_relu(weights: np.ndarray) -> np.ndarray:
+        weights = np.where(weights > 0, 1, 0)
+        return weights
+
+    @staticmethod
+    def sigmoid(value: np.ndarray) -> float:
+        """ sigmoid "squashing" function to interval [0,1].  """
+        return 1. / (1. + np.exp(-value))
+
+    @staticmethod
+    def derivative_sigmoid(value: np.ndarray) -> float:
+        """ sigmoid "squashing" function to interval [0,1].  """
+        sigmoid = 1. / (1. + np.exp(-value))
+        return sigmoid * (1 - sigmoid)
+
+    @staticmethod
+    def softmax(values: np.ndarray) -> np.ndarray:
+        """Compute softmax values for each sets of scores in values."""
+        e_x = np.exp(values - np.max(values))
+        return e_x / e_x.sum()
 
 
 class Layer:
@@ -141,6 +174,7 @@ class Layer:
         self._weights += learning_rate * self.gradients / (np.sqrt(self.rmsprop) + 1e-5)
         self.gradients.fill(0)
 
+    # Initializations
     def _init_zeros(self, input_shape):
         return np.zeros(input_shape)
 
