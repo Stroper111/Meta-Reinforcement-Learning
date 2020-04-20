@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pathlib
 import time
@@ -15,15 +17,13 @@ class BaseModel(AbstractModel):
     dir_save: str = None
 
     model: Any
-    input_shape: tuple
-    output_shape: int
 
     def __init__(self, input_shape, output_shape, *args, **kwargs):
         super().__init__(input_shape, output_shape)
 
         self.input_shape = input_shape
         self.output_shape = output_shape
-        
+
         self.model = None
 
     @staticmethod
@@ -35,7 +35,7 @@ class BaseModel(AbstractModel):
         """ Return the predictions of your model.  """
         raise NotImplementedError
 
-    def actions(self, states):
+    def act(self, states):
         """ Return the actions to execute, this can be combined with epsilon.  """
         raise NotImplementedError
 
@@ -74,23 +74,22 @@ class BaseModel(AbstractModel):
         self._save_model(save_path)
 
     def load_model(self, load_name: str = 'last', *args, **kwargs) -> str:
-        """ This loads the model with given load name from the save directory.  """
         assert self.dir_load, "No loading directory found, initialize it before loading or run `create_save_directory`"
         load_path = self._get_files(dir_load=self.dir_load, load_name=load_name)
-        return self._load_model(load_path)
+        return self._load_model(load_path) if load_path is not None else None
 
     def save_checkpoint(self, save_name: str, *args, **kwargs):
-        """ This stores a model checkpoint with given save name at the created directory.  """
+        """ This stores the model with given save name at the created directory.  """
         assert self.dir_save, "No saving directory found, initialize it before loading or run `create_save_directory`"
         save_path = os.path.join(self.dir_save, self.checkpoint, save_name)
         self._save_model(save_path)
 
     def load_checkpoint(self, load_name: str = 'last', *args, **kwargs) -> str:
-        """ This loads a model checkpoint with given load name from the save directory.  """
+        """ This loads the model with the given name at the created directory.  """
         assert self.dir_load, "No loading directory found, initialize it before loading or run `create_save_directory`"
         dir_load = os.path.join(self.dir_load, self.checkpoint)
-        save_path = self._get_files(dir_load=dir_load, load_name=load_name)
-        return self._load_model(save_path)
+        load_path = self._get_files(dir_load=dir_load, load_name=load_name)
+        return self._load_model(load_path) if load_path is not None else None
 
     def _save_model(self, save_path: str, *args, **kwargs):
         """ Saves the actual model.  """
@@ -123,7 +122,8 @@ class BaseModel(AbstractModel):
             # Checking location on files.
             files = glob.glob(os.path.join(dir_load, "*"))
             if not len(files):
-                raise ValueError(f"Unable to locate any models in `{dir_load}`")
+                warnings.warn(f"\nUnable to locate any models in:\n\t`{dir_load}`", UserWarning)
+                return None
 
             # Get the file depending on the load command
             load_path = commands[load_name](files, key=os.path.getctime)

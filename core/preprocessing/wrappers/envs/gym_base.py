@@ -52,5 +52,5 @@ class BaseGymWrapper:
     def unwrapped(self):
         return self.env.unwrapped
 
-    def process(self, img: np.array):
+    def preprocess(self, img: np.array):
         raise NotImplementedError
