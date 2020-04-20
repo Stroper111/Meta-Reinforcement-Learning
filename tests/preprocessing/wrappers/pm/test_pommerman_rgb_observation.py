@@ -34,7 +34,7 @@ class TestPommermanRGBObservation(unittest.TestCase):
         # Increasing life from 0 to 10, 10.
         bomb_life = np.array([[*np.arange(1, 11), 10] for _ in range(0, 11)])
 
-        obs = [dict(board=board, bomb_life=bomb_life)]
+        obs = dict(board=board, bomb_life=bomb_life)
         obs_processed = self.wrapper.preprocess(obs)[self.agent_idx]
         self.assertEqual(True, np.array_equal(obs_processed['rgb_array'], self.obs_saved))
 
